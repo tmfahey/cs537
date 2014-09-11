@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
             exit(-1);
         }
 
-        output_file = fopen("outputFile", "w");
+        output_file = fopen(outputFile, "w");
         if (output_file == NULL)
         {
             fprintf(stderr, "Error: Cannot open file %s\n", outputFile);
@@ -97,13 +97,16 @@ int main(int argc, char* argv[]) {
               positiveTrials++;
              }
             }
-
             //done with trials, write data to output file
             fprintf(output_file, "%.2f\n", positiveTrials/1000.0);
           }else{
             //people amount was zero, do nothing
           }
-        }
+        }//done parsing input file
+        //closing files
+        fclose(input_file);
+        fclose(output_file);
+
         return 0;
     }
 }
