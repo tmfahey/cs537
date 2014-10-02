@@ -321,6 +321,8 @@ void executeCmds(char **arg, int *iCmdType, int *iCmdPos)
 
    char **ArrayPtr;               // Pointer to access the split arrays
 
+   char **ArrayPtr1;              // Second pointer to access split arrays
+
 
 
    int fd_out;                    // Output File Descriptors
@@ -374,7 +376,32 @@ void executeCmds(char **arg, int *iCmdType, int *iCmdPos)
       *ArrayPtr = NULL;
 
 
+      if(newarg2[1]){
+         ArrayPtr = newarg2;
+         ArrayPtr++;
+         ArrayPtr1 = newarg1;
 
+         //get to the end of newarg1s valid arguments
+         while(*ArrayPtr1){
+            ArrayPtr1++;
+            //printf("Arg1 itr: %s\n", *ArrayPtr1);
+         }
+         while(*ArrayPtr){
+            *ArrayPtr1 = *ArrayPtr;
+            //printf("Ptr: %s, Ptr1: %s\n", *ArrayPtr, *ArrayPtr);
+            ArrayPtr++;
+            ArrayPtr1++;
+         }
+         *ArrayPtr1 = NULL;
+
+         ArrayPtr = newarg1;
+         while(*ArrayPtr){
+            //printf("%s\n", *ArrayPtr);
+            ArrayPtr++;
+         }
+
+
+      }
 
 
       /* To do when redirect */
