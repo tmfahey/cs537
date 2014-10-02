@@ -1,0 +1,177 @@
+/************************************************/
+/* NAME: Akshay Kumar									*/
+/* DATE: 07-Sep-2014 									*/
+/* CS537 - Project 1A - Birthday Paradox 			*/
+/************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+#include <unistd.h>
+
+#define NUMTRIALS	1000
+
+int randBirthdays(void);
+bool sameBdayCheck(int);
+
+/* Name			: main()
+ * Description : main function of the program
+ * Arguments	: number and the parameters passed through command line
+ * Return Type	: integer
+ */
+int main(int argc, char *argv[])
+{
+	int iOption = 0;
+	char cStatusIpFile = 0;
+	char cStatusOpFile = 0;
+	char cOptionErr = 0;
+	char *cArgOne = NULL;
+	char *cArgTwo = NULL;
+
+	int iNum, iCnt, iOutcome;
+	int iPosTrial = 0;
+	float fBdayProb;
+
+	/* Parsing the command line arguments */
+   while ((iOption = getopt(argc, argv,"i:o:")) != -1)
+	{
+		switch (iOption)
+		{
+			case 'i': 
+				cArgOne = optarg;
+				cStatusIpFile = 1;
+				break;
+
+			case 'o':
+				cArgTwo = optarg;
+				cStatusOpFile = 1;
+				break;
+
+			case '?':
+				cOptionErr = 1;
+				break;
+
+			default:  
+				exit(1);
+        }
+    }
+
+	/* Command line arguments error check */
+	if ((0 == cStatusIpFile) | (0 == cStatusOpFile) | (1 == cOptionErr))
+	{
+		fprintf(stderr,"Usage: paradox -i inputfile -o outputfile");
+		exit(0);
+	}
+
+	/* Create file pointers */
+	FILE *fptrIF = fopen(cArgOne, "r");
+	FILE *fptrOF = fopen(cArgTwo, "w");
+
+	/* File open error check */
+	if (NULL == fptrIF)
+	{
+		fprintf(stderr,"Error: Cannot open file %s",argv[2]);
+		exit(0);
+	}
+
+	if (NULL == fptrOF)
+	{
+		fprintf(stderr,"Error: Cannot open file %s",argv[4]);
+		exit(0);
+	}
+
+
+	/* Primary loop that computes the probability for each N
+	 * by performing number of trails defined in NUMTRIALS
+	 */
+	while(fscanf(fptrIF,"%d",&iNum) != EOF)
+	{
+		for(iCnt = 0; iCnt<NUMTRIALS; iCnt++)
+		{
+			//srand(rand());			
+			iOutcome = sameBdayCheck(iNum);
+
+			if (true == iOutcome)
+			{
+				iPosTrial++;
+			}
+		}
+
+		fBdayProb = iPosTrial / (float)NUMTRIALS;
+
+		//printf("%0.2f\n",fBdayProb);
+		fprintf(fptrOF,"%0.2f\n",fBdayProb);
+
+		iPosTrial = 0;      
+    }
+
+	fclose(fptrIF);
+	fclose(fptrOF);
+
+	return(1);
+}
+
+
+
+
+/* Name			: randBirthdays()
+ * Description : Returns a random number between [1,365]
+ * Arguments	: None
+ * Return Type	: integer
+ */
+int randBirthdays(void)
+{
+	int iRandVal;
+	
+	iRandVal = rand()%365;
+	if (0 == iRandVal){
+		iRandVal = 1;
+	}
+
+	return(iRandVal);
+}
+
+
+
+
+/* Name			: sameBdayCheck()
+ * Description : Checks to see if any two birthdays are same
+ * Arguments	: Number of people in a trial
+ * Return Type	: boolean (positive or negative)
+ */
+bool sameBdayCheck(int iNumPeople)
+{		
+	int iCntA,iCntB;	
+	int *iPtrBdayArray = malloc(iNumPeople*sizeof(int));
+
+	//srand(time(NULL));
+	//srand(10);
+	/* Initialize the array using random numbers */
+	for(iCntA=0; iCntA<iNumPeople; iCntA++)
+	{
+		iPtrBdayArray[iCntA] = randBirthdays();
+	}
+
+	/* Check to see if any two birthdays match */
+	for(iCntA=0; iCntA<iNumPeople; iCntA++)
+	{
+		for(iCntB=0; iCntB<iNumPeople; iCntB++)
+		{
+			if(iCntA == iCntB)
+			{
+				continue;
+			}
+			else
+			{
+				if(iPtrBdayArray[iCntB] == iPtrBdayArray[iCntA])
+				{
+					//printf("\nMATCH! Person# %d with bday# %d, matched with Person# %d with bday# %d",iCntA,iPtrBdayArray[iCntA],iCntB,iPtrBdayArray[iCntB]);
+					return(true);
+					break;
+				}
+			}
+		}
+	}
+
+	return(false);
+}
