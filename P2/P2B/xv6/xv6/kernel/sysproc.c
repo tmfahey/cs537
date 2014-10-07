@@ -5,6 +5,7 @@
 #include "mmu.h"
 #include "proc.h"
 #include "sysfunc.h"
+#include "pstat.h"
 
 int
 sys_fork(void)
@@ -53,6 +54,41 @@ sys_sbrk(void)
   if(growproc(n) < 0)
     return -1;
   return addr;
+}
+
+int sys_reserve(void){
+ int n;
+ int reserveSum;
+ if(argint(0, &n) < 0)
+    return -1;
+ reserveSum = currentReservations();
+ if(n >= 0 && n <= 100){
+  proc->reserve = n; 
+  if((reserveSum + n) > 200)
+    return - 1;//reservation overflowed up :(
+ }else{
+  return -1;
+ }
+  return 0;
+}
+
+int sys_spot(void){
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  if(n>0){
+    proc->spot = n;
+    return 0;
+  }
+  return -1;
+}
+
+int sys_getpinfo(void){
+  struct pstat *newStat;
+  if(argptr(0, (char **) &newStat, sizeof(struct pstat)) < 0)
+    return -1;
+
+  return getpinfo(newStat);
 }
 
 int

@@ -9,6 +9,8 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  struct pstat *info;
+  uint reserveTotal;
 } ptable;
 
 static struct proc *initproc;
@@ -18,6 +20,9 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
+void runProcess(struct proc *p);
+static uint temper(uint);
+uint lcg64_temper(uint*);
 
 void
 pinit(void)
@@ -36,13 +41,19 @@ allocproc(void)
   char *sp;
 
   acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == UNUSED)
       goto found;
+  }
   release(&ptable.lock);
   return 0;
 
 found:
+  p->reserve = 0;
+  p->spot = 0;
+  p->chosen = 0;
+  p->time = 0;
+  p->charge = 0;
   p->state = EMBRYO;
   p->pid = nextpid++;
   release(&ptable.lock);
@@ -245,6 +256,8 @@ wait(void)
   }
 }
 
+
+
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
 // Scheduler never returns.  It loops, doing:
@@ -256,34 +269,80 @@ void
 scheduler(void)
 {
   struct proc *p;
-
+  int reserveSum = 0;
+  int highestBid = 0;
+  static uint seed = 100;
+  uint chosenTicket = 0;
+  uint accumulatedTickets = 0;
+  struct proc *spotProcs[NPROC];
+  int highestBidProcesses = 0;
+  //printk("\nRand# = %d", (lcg64_temper(&seed) % 100));
   for(;;){
+    reserveSum = 0;
+    highestBidProcesses = 0;
     // Enable interrupts on this processor.
     sti();
-
+    for(p = ptable.proc; p<&ptable.proc[NPROC]; p++){
+      if(p->state == RUNNABLE || p->state == RUNNING){
+        reserveSum+=p->reserve;
+        if(p->spot > highestBid)
+          highestBid = p->spot;
+      }
+    }
+    if(reserveSum > 0){
+      //generate lottery value
+      chosenTicket = (lcg64_temper(&seed)%200) + 1;
+      accumulatedTickets = 0;
+    }
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      swtch(&cpu->scheduler, proc->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      proc = 0;
+      if(reserveSum > chosenTicket){
+        accumulatedTickets += p->reserve;
+        if(accumulatedTickets >= chosenTicket){
+          //shedule process
+          runProcess(p);
+          break;
+        }
+      }else{
+        //spot process
+        if(p->spot == highestBid){
+          spotProcs[highestBidProcesses] = p;
+          highestBidProcesses++;
+          break;
+        }
+      }
+    }
+    if(highestBidProcesses){
+      p = spotProcs[lcg64_temper(&seed)%highestBidProcesses];
+      runProcess(p);
     }
     release(&ptable.lock);
-
   }
 }
+
+void runProcess(struct proc *p){
+  // Switch to chosen process.  It is the process's job
+  // to release ptable.lock and then reacquire it
+  // before jumping back to us.    
+  p->chosen++;
+  p->time = p->time + 10;
+  if(p->reserve)
+    p->charge = p->charge + (10 * 100);
+  if(p->spot)
+    p->charge = p->charge + (10 * p->spot); 
+  proc = p;
+  switchuvm(p);
+  p->state = RUNNING;
+  swtch(&cpu->scheduler, proc->context);
+  switchkvm();
+  proc = 0;
+
+}
+
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state.
@@ -443,4 +502,49 @@ procdump(void)
   }
 }
 
+static uint temper(uint x)
+{
+    x ^= x>>11;
+    x ^= x<<7 & 0x9D2C5680;
+    x ^= x<<15 & 0xEFC60000;
+    x ^= x>>18;
+    return x;
+}
 
+uint lcg64_temper(uint *seed)
+{
+    *seed = 636413622 * *seed + 1;
+    return temper(*seed);
+}
+
+int getpinfo(struct pstat *newStat){
+  int i;
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for(i = 0; i < NPROC; i++){
+    p = &ptable.proc[i];
+    if(p->state != UNUSED){
+       newStat->inuse[i] = 1;
+       newStat->pid[i] = p->pid;
+       newStat->chosen[i] = p->chosen;
+       newStat->time[i] = p->time;
+       newStat->charge[i] = p->charge;
+    }else{
+      newStat->inuse[i] = 0;
+    }
+  }
+  release(&ptable.lock);
+  
+  return 0;
+}
+
+int currentReservations(void){
+ struct proc *p;
+ int reserveSum = 0;
+ for(p = ptable.proc; p<&ptable.proc[NPROC]; p++){
+   if(p->state == RUNNABLE || p->state == RUNNING)
+     reserveSum+=p->reserve;
+ }
+ return reserveSum;
+}

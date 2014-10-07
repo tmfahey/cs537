@@ -1,5 +1,8 @@
 #ifndef _PROC_H_
 #define _PROC_H_
+
+#include "pstat.h"
+
 // Segments in proc->gdt.
 // Also known to bootasm.S and trapasm.S
 #define SEG_KCODE 1  // kernel code
@@ -74,7 +77,15 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int reserve;		       // Reserved CPU
+  int spot;                    // Spot bid in nanodollars per ms
+  int chosen;		       // number of times process chosen to run
+  int time;                    // time in ms the process has run
+  int charge;                  // cash the process is charged
 };
+
+int getpinfo(struct pstat *newStat);
+int currentReservations(void);
 
 // Process memory is laid out contiguously, low addresses first:
 //   text
