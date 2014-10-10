@@ -17,7 +17,8 @@ USER_PROGS := \
 	usertests\
 	wc\
 	zombie\
-        ps
+        ps\
+	graphs
 
 USER_PROGS := $(addprefix user/, $(USER_PROGS))
 

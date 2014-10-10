@@ -281,11 +281,13 @@ scheduler(void)
   //printk("\nRand# = %d", (lcg64_temper(&seed) % 100));
   for(;;){
     //reset hgihestBid, reserveSu, and highest bid every loop
+    //tempRand = (((seed++ + highestBid + chosenTicket) * (4218+accumulatedTickets))%200) + 1;
+    tempRand = ((seed++ * 48279)%200) + 1;
     highestBid = 0;
     reserveSum = 0;
     highestBidProcesses = 0;
     chosenTicket = 0;
-    tempRand = (seed++ * 4187)%200 + 1;
+    accumulatedTickets = 0;
     // Enable interrupts on this processor.
     sti();
     //iterating through ptable to get information about reserves and spots
@@ -304,7 +306,6 @@ scheduler(void)
     if(reserveSum > 0){
       //generate lottery value
       chosenTicket = tempRand;
-      accumulatedTickets = 0;
     }
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
@@ -330,7 +331,7 @@ scheduler(void)
       }
     }
     if(highestBidProcesses){
-      p = /*spotProcs[lcg64_temper(&seed)%200+1];*/spotProcs[tempRand%highestBidProcesses];
+      p = spotProcs[tempRand%highestBidProcesses];
       runProcess(p);
     }
     release(&ptable.lock);
