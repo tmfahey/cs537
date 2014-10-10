@@ -303,7 +303,7 @@ scheduler(void)
     }
     if(reserveSum > 0){
       //generate lottery value
-      chosenTicket = (lcg64_temper(&seed)%200) + 1;
+      chosenTicket = tempRand;
       accumulatedTickets = 0;
     }
     // Loop over process table looking for process to run.
@@ -330,7 +330,7 @@ scheduler(void)
       }
     }
     if(highestBidProcesses){
-      p = spotProcs[lcg64_temper(&seed)%200+1];//spotProcs[tempRand%highestBidProcesses];
+      p = /*spotProcs[lcg64_temper(&seed)%200+1];*/spotProcs[tempRand%highestBidProcesses];
       runProcess(p);
     }
     release(&ptable.lock);
