@@ -24,6 +24,17 @@ void runProcess(struct proc *p);
 static uint temper(uint);
 uint lcg64_temper(uint*);
 
+int ourRandArr[] ={ 190, 56, 155, 99, 66, 8, 196, 15, 193, 103, 67, 138, 148,196,78,49,182,6,175,182,
+104,87, 99, 14, 70, 140, 163, 28, 13, 75, 64, 97, 125, 113, 58, 11, 146, 27, 95, 127,
+106, 48, 36, 125, 135, 36, 70, 2, 167, 85, 31, 192, 191, 160, 44, 160, 190, 108, 146, 143,
+125, 90, 66, 4, 96, 56, 48, 8, 152, 59, 68, 146, 52, 174, 151, 49, 109, 115, 69, 173,
+18, 55, 18, 164, 19, 153, 117, 86, 80, 45, 149, 126, 156, 151, 165, 131, 13, 199, 84, 55,
+147, 42, 78, 130, 139, 87, 145, 80, 46, 104, 122, 42, 22, 75, 65, 46, 138, 50, 1, 160,
+160, 29, 30, 8, 93, 107, 16, 33, 121, 41, 14, 90, 102, 6, 123, 136, 173, 173, 68, 91,
+128, 107, 30, 80, 132, 42, 154, 154, 94, 31, 63, 126, 10, 55, 145, 40, 149, 123, 79, 46,
+179, 98, 35, 192, 104, 189, 62, 177, 54, 76, 116, 110, 7, 41, 13, 37, 62, 150, 47, 38,
+91, 56, 34, 63, 22, 149, 129, 56, 67, 181, 123, 144, 197, 166, 113, 124, 9, 164, 37, 177};
+
 void
 pinit(void)
 {
@@ -269,10 +280,11 @@ wait(void)
 void
 scheduler(void)
 {
+  static int i = 0;
   struct proc *p;
   int reserveSum = 0;
   int highestBid = 0;
-  static uint seed = 100;
+  //static uint seed = 100;
   uint chosenTicket = 0;
   uint accumulatedTickets = 0;
   uint tempRand = 0;
@@ -282,7 +294,8 @@ scheduler(void)
   for(;;){
     //reset hgihestBid, reserveSu, and highest bid every loop
     //tempRand = (((seed++ + highestBid + chosenTicket) * (4218+accumulatedTickets))%200) + 1;
-    tempRand = ((seed++ * 48279)%200) + 1;
+    tempRand = ourRandArr[i];
+    i = (i + 1)% 200;
     highestBid = 0;
     reserveSum = 0;
     highestBidProcesses = 0;
