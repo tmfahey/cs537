@@ -53,7 +53,8 @@ found:
   p->spot = 0;
   p->chosen = 0;
   p->time = 0;
-  p->charge = 0;
+  p->microCharge = 0;
+  p->nanoCharge = 0;
   p->state = EMBRYO;
   p->pid = nextpid++;
   release(&ptable.lock);
@@ -274,19 +275,30 @@ scheduler(void)
   static uint seed = 100;
   uint chosenTicket = 0;
   uint accumulatedTickets = 0;
+  uint tempRand = 0;
   struct proc *spotProcs[NPROC];
   int highestBidProcesses = 0;
   //printk("\nRand# = %d", (lcg64_temper(&seed) % 100));
   for(;;){
+    //reset hgihestBid, reserveSu, and highest bid every loop
+    highestBid = 0;
     reserveSum = 0;
     highestBidProcesses = 0;
+    chosenTicket = 0;
+    tempRand = (seed++ * 4187)%200 + 1;
     // Enable interrupts on this processor.
     sti();
+    //iterating through ptable to get information about reserves and spots
     for(p = ptable.proc; p<&ptable.proc[NPROC]; p++){
-      if(p->state == RUNNABLE || p->state == RUNNING){
-        reserveSum+=p->reserve;
-        if(p->spot > highestBid)
+      if(p->state == RUNNABLE){
+        if(p->reserve){
+          //reserved process found and runnable, inc sum
+          reserveSum+=p->reserve;
+        }else
+        if(p->spot > highestBid){
+          //not reserve, but spot process found w/ new highest bid
           highestBid = p->spot;
+        }
       }
     }
     if(reserveSum > 0){
@@ -299,24 +311,26 @@ scheduler(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-      if(reserveSum > chosenTicket){
-        accumulatedTickets += p->reserve;
-        if(accumulatedTickets >= chosenTicket){
-          //shedule process
-          runProcess(p);
-          break;
-        }
+      if((reserveSum > 0) && (chosenTicket <= reserveSum)){
+        //there are processes with reserve values
+        if(p->reserve > 0){
+          //we know the current process is a reserved process
+          accumulatedTickets += p->reserve;
+          if(accumulatedTickets >= chosenTicket){
+            runProcess(p);
+            break;
+          }
+        } 
       }else{
-        //spot process
+        //there are no reserve processes
         if(p->spot == highestBid){
           spotProcs[highestBidProcesses] = p;
           highestBidProcesses++;
-          break;
         }
       }
     }
     if(highestBidProcesses){
-      p = spotProcs[lcg64_temper(&seed)%highestBidProcesses];
+      p = spotProcs[lcg64_temper(&seed)%200+1];//spotProcs[tempRand%highestBidProcesses];
       runProcess(p);
     }
     release(&ptable.lock);
@@ -329,17 +343,22 @@ void runProcess(struct proc *p){
   // before jumping back to us.    
   p->chosen++;
   p->time = p->time + 10;
-  if(p->reserve)
-    p->charge = p->charge + (10 * 100);
-  if(p->spot)
-    p->charge = p->charge + (10 * p->spot); 
+  if(p->reserve){
+    p->microCharge += 1;
+  }  
+  if(p->spot){
+    p->nanoCharge = (p->spot*10) + p->nanoCharge;
+    if(p->nanoCharge >= 1000){
+      p->nanoCharge = p->nanoCharge - 1000;
+      p->microCharge += 1;
+    }
+  }
   proc = p;
   switchuvm(p);
   p->state = RUNNING;
   swtch(&cpu->scheduler, proc->context);
   switchkvm();
   proc = 0;
-
 }
 
 
@@ -529,7 +548,7 @@ int getpinfo(struct pstat *newStat){
        newStat->pid[i] = p->pid;
        newStat->chosen[i] = p->chosen;
        newStat->time[i] = p->time;
-       newStat->charge[i] = p->charge;
+       newStat->charge[i] = p->microCharge;
     }else{
       newStat->inuse[i] = 0;
     }

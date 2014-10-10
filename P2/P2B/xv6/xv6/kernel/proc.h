@@ -81,7 +81,8 @@ struct proc {
   int spot;                    // Spot bid in nanodollars per ms
   int chosen;		       // number of times process chosen to run
   int time;                    // time in ms the process has run
-  int charge;                  // cash the process is charged
+  int microCharge;             // cash the process is charged in microdollars
+  int nanoCharge;              // charge in nano dollars
 };
 
 int getpinfo(struct pstat *newStat);

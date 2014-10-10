@@ -62,10 +62,10 @@ int sys_reserve(void){
  if(argint(0, &n) < 0)
     return -1;
  reserveSum = currentReservations();
- if(n >= 0 && n <= 100){
-  proc->reserve = n; 
-  if((reserveSum + n) > 200)
-    return - 1;//reservation overflowed up :(
+ if(n >= 0 && n <= 100){ 
+  if((reserveSum + n) >= 200)
+    return - 1;//reservations full
+  proc->reserve = n;
  }else{
   return -1;
  }
