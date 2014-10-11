@@ -355,16 +355,21 @@ void runProcess(struct proc *p){
   // Switch to chosen process.  It is the process's job
   // to release ptable.lock and then reacquire it
   // before jumping back to us.    
+  int i = 0;
   p->chosen++;
   p->time = p->time + 10;
   if(p->reserve){
     p->microCharge += 1;
   }  
-  if(p->spot){
-    p->nanoCharge = (p->spot*10) + p->nanoCharge;
-    if(p->nanoCharge >= 1000){
-      p->nanoCharge = p->nanoCharge - 1000;
-      p->microCharge += 1;
+  else if(p->spot){
+    i = 0;
+    while(i < 10){
+      p->nanoCharge += p->spot;
+      if(p->nanoCharge >= 1000){
+        p->microCharge += p->nanoCharge/1000;
+        p->nanoCharge = p->nanoCharge%1000;
+      }
+    i++;
     }
   }
   proc = p;
