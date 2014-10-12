@@ -21,19 +21,7 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 void runProcess(struct proc *p);
-static uint temper(uint);
-uint lcg64_temper(uint*);
-
-int ourRandArr[] ={ 190, 56, 155, 99, 66, 8, 196, 15, 193, 103, 67, 138, 148,196,78,49,182,6,175,182,
-104,87, 99, 14, 70, 140, 163, 28, 13, 75, 64, 97, 125, 113, 58, 11, 146, 27, 95, 127,
-106, 48, 36, 125, 135, 36, 70, 2, 167, 85, 31, 192, 191, 160, 44, 160, 190, 108, 146, 143,
-125, 90, 66, 4, 96, 56, 48, 8, 152, 59, 68, 146, 52, 174, 151, 49, 109, 115, 69, 173,
-18, 55, 18, 164, 19, 153, 117, 86, 80, 45, 149, 126, 156, 151, 165, 131, 13, 199, 84, 55,
-147, 42, 78, 130, 139, 87, 145, 80, 46, 104, 122, 42, 22, 75, 65, 46, 138, 50, 1, 160,
-160, 29, 30, 8, 93, 107, 16, 33, 121, 41, 14, 90, 102, 6, 123, 136, 173, 173, 68, 91,
-128, 107, 30, 80, 132, 42, 154, 154, 94, 31, 63, 126, 10, 55, 145, 40, 149, 123, 79, 46,
-179, 98, 35, 192, 104, 189, 62, 177, 54, 76, 116, 110, 7, 41, 13, 37, 62, 150, 47, 38,
-91, 56, 34, 63, 22, 149, 129, 56, 67, 181, 123, 144, 197, 166, 113, 124, 9, 164, 37, 177};
+uint rand(void);
 
 void
 pinit(void)
@@ -280,22 +268,16 @@ wait(void)
 void
 scheduler(void)
 {
-  static int i = 0;
   struct proc *p;
   int reserveSum = 0;
   int highestBid = 0;
-  //static uint seed = 100;
   uint chosenTicket = 0;
   uint accumulatedTickets = 0;
-  uint tempRand = 0;
+  int tempRand = 0;
   struct proc *spotProcs[NPROC];
   int highestBidProcesses = 0;
-  //printk("\nRand# = %d", (lcg64_temper(&seed) % 100));
   for(;;){
-    //reset hgihestBid, reserveSu, and highest bid every loop
-    //tempRand = (((seed++ + highestBid + chosenTicket) * (4218+accumulatedTickets))%200) + 1;
-    tempRand = ourRandArr[i];
-    i = (i + 1)% 200;
+    tempRand = rand()%200 + 1;
     highestBid = 0;
     reserveSum = 0;
     highestBidProcesses = 0;
@@ -540,21 +522,6 @@ procdump(void)
   }
 }
 
-static uint temper(uint x)
-{
-    x ^= x>>11;
-    x ^= x<<7 & 0x9D2C5680;
-    x ^= x<<15 & 0xEFC60000;
-    x ^= x>>18;
-    return x;
-}
-
-uint lcg64_temper(uint *seed)
-{
-    *seed = 636413622 * *seed + 1;
-    return temper(*seed);
-}
-
 int getpinfo(struct pstat *newStat){
   int i;
   struct proc *p;
@@ -585,4 +552,19 @@ int currentReservations(void){
      reserveSum+=p->reserve;
  }
  return reserveSum;
+}
+
+uint rand (void)
+{
+   static uint z1 = 12345, z2 = 12345, z3 = 12345, z4 = 12345;
+   uint b;
+   b  = ((z1 << 6) ^ z1) >> 13;
+   z1 = ((z1 & 4294967294U) << 18) ^ b;
+   b  = ((z2 << 2) ^ z2) >> 27; 
+   z2 = ((z2 & 4294967288U) << 2) ^ b;
+   b  = ((z3 << 13) ^ z3) >> 21;
+   z3 = ((z3 & 4294967280U) << 7) ^ b;
+   b  = ((z4 << 3) ^ z4) >> 12;
+   z4 = ((z4 & 4294967168U) << 13) ^ b;
+   return (z1 ^ z2 ^ z3 ^ z4);
 }
