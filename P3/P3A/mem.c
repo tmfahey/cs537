@@ -15,16 +15,13 @@
 #include <string.h>
 #include "mem.h"
 
-
-#define CHUNK_SIZE 8
-
 /* this structure serves as the header for each block */
 typedef struct block_hd{
   /* The blocks are maintained as a linked list */
   /* The blocks are ordered in the increasing order of addresses */
   struct block_hd* next;
 
-  /* size of the block is always a multiple of CHUNK_SIZE */
+  /* size of the block is always a multiple of 4 */
   /* ie, last two bits are always zero - can be used to store other information*/
   /* LSB = 0 => free block */
   /* LSB = 1 => allocated/busy block */
@@ -44,42 +41,39 @@ block_header* list_head = NULL;
 
 
 /* Function used to Initialize the memory allocator */
+/* Not intended to be called more than once by a program */
+/* Argument - sizeOfRegion: Specifies the size of the chunk which needs to be allocated */
 /* Returns 0 on success and -1 on failure */
 int Mem_Init(int sizeOfRegion)
 {
-  int padding;
   int pagesize;
+  int padsize;
   int fd;
   int alloc_size;
   void* space_ptr;
-  static int allocated = 0;
+  static int allocated_once = 0;
   
-  if(0 != allocated)
+  if(0 != allocated_once)
   {
     fprintf(stderr,"Error:mem.c: Mem_Init has allocated space during a previous call\n");
     return -1;
   }
-
   if(sizeOfRegion <= 0)
   {
     fprintf(stderr,"Error:mem.c: Requested block size is not positive\n");
     return -1;
   }
 
-  /* Get page size */
+  /* Get the pagesize */
   pagesize = getpagesize();
 
-  /* calculating padding such that our allocation size is divisible my page size */
-  padding = sizeOfRegion % pagesize;
-  padding = (pagesize - padding) % pagesize;
+  /* Calculate padsize as the padding required to round up sizeOfRegio to a multiple of pagesize */
+  padsize = sizeOfRegion % pagesize;
+  padsize = (pagesize - padsize) % pagesize;
 
-  alloc_size = sizeOfRegion + padding;
+  alloc_size = sizeOfRegion + padsize;
 
-  /* Allocate memory with mmap
-   * mmap() makes a memory map of the requested amount of bytes
-   * from the disk to the virtual address space of the process and
-   * moves into the physical memory.
-   */
+  /* Using mmap to allocate memory */
   fd = open("/dev/zero", O_RDWR);
   if(-1 == fd)
   {
@@ -90,16 +84,16 @@ int Mem_Init(int sizeOfRegion)
   if (MAP_FAILED == space_ptr)
   {
     fprintf(stderr,"Error:mem.c: mmap cannot allocate space\n");
-    allocated = 0;
+    allocated_once = 0;
     return -1;
   }
   
-  allocated = 1;
+  allocated_once = 1;
   
-  /* setting our listhead to pointer returned my mmap */
+  /* To begin with, there is only one big, free block */
   list_head = (block_header*)space_ptr;
   list_head->next = NULL;
-  /* setting list head size. size is stored in blocks, excludes space for the header */
+  /* Remember that the 'size' stored in block size excludes the space for the header */
   list_head->size_status = alloc_size - (int)sizeof(block_header);
   
   return 0;
@@ -128,9 +122,9 @@ void* Mem_Alloc(int size)
     return NULL;
   }
 
-  /* Calculate padsize as the padding required to round up size to a multiple of 8 */
-  padsize = size % CHUNK_SIZE;
-  padsize = (CHUNK_SIZE - padsize) % CHUNK_SIZE;
+  /* Calculate padsize as the padding required to round up size to a multiple of 4 */
+  padsize = size % 4;
+  padsize = (4 - padsize) % 4;
   alloc_size = size + padsize;
 
   block_header* itr_head = list_head;
@@ -154,7 +148,7 @@ void* Mem_Alloc(int size)
         /* Returning the address of allocated block */
         return (block_header*)((char*)itr_head + (int)sizeof(block_header));
     }
-    itr_head = itr_head->next;    
+    itr_head = itr_head->next;		
   }
   /* A free block was never found, return NULL */
   return NULL;
@@ -249,23 +243,24 @@ int Mem_Free(void *ptr)
   return 0;
 }
 
-
-
-
-/* Name        : Mem_Dump()
- * Description : Prints out the chunks of free memory available
- * Arguments   : none
- * Return Type : none
- */
+/* Function to be used for debug */
+/* Prints out a list of all the blocks along with the following information for each block */
+/* No.      : Serial number of the block */
+/* Status   : free/busy */
+/* Begin    : Address of the first useful byte in the block */
+/* End      : Address of the last byte in the block */
+/* Size     : Size of the block (excluding the header) */
+/* t_Size   : Size of the block (including the header) */
+/* t_Begin  : Address of the first byte in the block (this is where the header starts) */
 void Mem_Dump()
 {
   int counter;
   block_header* current = NULL;
-  char* t_Begin = NULL; //Address of the first byte in the block
-  char* Begin = NULL;   //Address of the first useful byte in the block
-  int Size;             //Size of the block (excluding the header)
-  int t_Size;           //Size of the block (including the header) 
-  char* End = NULL;     //Address of the last byte in the block
+  char* t_Begin = NULL;
+  char* Begin = NULL;
+  int Size;
+  int t_Size;
+  char* End = NULL;
   int free_size;
   int busy_size;
   int total_size;
@@ -313,33 +308,3 @@ void Mem_Dump()
   fflush(stdout);
   return;
 }
-
-/* Name        : Mem_Available()
- * Description : Prints out num bytes that can be allocated in future
- * Arguments   : none
- * Return Type : integer
- */
-int Mem_Available()
-{
-  block_header* current = NULL;
-  current = list_head;
-  int Size;
-  int t_Size;
-  int free_size = 0;
-
-  while(NULL != current)
-  {
-    if(!(current->size_status & 1)) /*LSB = 0 => free block*/
-    {
-      //this block is free, add it's size
-      if(free_size < current->size_status){
-        free_size = current->size_status;
-      }
-    }
-    printf(stdout, "largest free block: %d\n", free_size);
-    current = current->next;
-  }
-
-}
-
-
