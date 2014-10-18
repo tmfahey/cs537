@@ -70,5 +70,6 @@ int main() {
              )
            ))
          );
+   Mem_Dump();
    exit(0);
 }

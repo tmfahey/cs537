@@ -9,5 +9,6 @@ int main() {
    assert(ptr != NULL);
    *ptr = 42;   // check pointer is in a writeable page
    assert(*ptr == 42);
+   Mem_Dump();
    exit(0);
 }

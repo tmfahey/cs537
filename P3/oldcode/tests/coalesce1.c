@@ -12,7 +12,7 @@ int main() {
 
    ptr[1] = Mem_Alloc(800);
    assert(ptr[1] != NULL);
-
+   printf("Ptr[1]: %lx\n",(long unsigned int)((char*)ptr[1]));
    ptr[2] = Mem_Alloc(800);
    assert(ptr[2] != NULL);
 
@@ -22,11 +22,13 @@ int main() {
    while (Mem_Alloc(800) != NULL)
      ;
 
+   Mem_Dump();
    assert(Mem_Free(ptr[1]) == 0);
+   Mem_Dump();
    assert(Mem_Free(ptr[2]) == 0);
-
+   Mem_Dump();
    ptr[2] = Mem_Alloc(1600);
    assert(ptr[2] != NULL);
-
+   Mem_Dump();
    exit(0);
 }

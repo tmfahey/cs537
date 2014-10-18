@@ -17,6 +17,6 @@ int main() {
    assert((int)(ptr[1]) % 4 == 0);
    assert((int)(ptr[2]) % 4 == 0);
    assert((int)(ptr[3]) % 4 == 0);
-
+   Mem_Dump();
    exit(0);
 }

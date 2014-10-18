@@ -26,12 +26,16 @@ int main() {
    
   // last free chunk is at least this big
    int free = (4096 - (880 + HEADER) * 4) - SLACK;
-
+   printf("SHOULD BE ALL ALLOCATED!!%d\n", free);
+   Mem_Dump();
    assert(Mem_Free(ptr[3]) == 0);
+   Mem_Dump();
+   printf("^^^FREED UP ONE OF THEM\n");
    free += (880 + 32);
 
    ptr[2] = Mem_Alloc(free - HEADER);
+   printf("FREED MORE\n");
    assert(ptr[2] != NULL);
-
+   Mem_Dump();
    exit(0);
 }

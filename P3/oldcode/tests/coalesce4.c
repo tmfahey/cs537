@@ -30,15 +30,20 @@ int main() {
 
    while (Mem_Alloc(500) != NULL)
      ;
-
+   Mem_Dump();
    assert(Mem_Free(ptr[1]) == 0);
+   Mem_Dump();
    assert(Mem_Free(ptr[5]) == 0);
+   Mem_Dump();
    assert(Mem_Free(ptr[2]) == 0);
+   Mem_Dump();
    assert(Mem_Free(ptr[4]) == 0);
+   Mem_Dump();
    assert(Mem_Free(ptr[3]) == 0);
+   Mem_Dump();
 
    ptr[2] = Mem_Alloc(2500);
    assert(ptr[2] != NULL);
-
+   Mem_Dump();
    exit(0);
 }

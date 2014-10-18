@@ -6,6 +6,6 @@
 int main() {
    assert(Mem_Init(4096) == 0);
    assert(Mem_Alloc(4095) == NULL);
-
+   Mem_Dump();
    exit(0);
 }

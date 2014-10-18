@@ -8,5 +8,6 @@ int main() {
    void* ptr = Mem_Alloc(8);
    assert(ptr != NULL);
    assert(Mem_Free(ptr) == 0);
+   Mem_Dump();
    exit(0);
 }

@@ -14,25 +14,33 @@ int main() {
    assert(ptr[1] != NULL);
    assert(ptr[2] != NULL);
    assert(ptr[3] != NULL);
-
+   Mem_Dump();
    assert(Mem_Free(ptr[1]) == 0);
+   printf("Freeing 5 ptr(1)");
+   Mem_Dump();
    assert(Mem_Free(ptr[0]) == 0);
+   printf("Freeing 1 ptr(0)");
+   Mem_Dump();
    assert(Mem_Free(ptr[3]) == 0);
-
+   printf("Freeing 8 ptr(3)");
+   Mem_Dump();
+   printf("Allocating 1 and 4\n");
    ptr[4] = (Mem_Alloc(1));
+   Mem_Dump();
    ptr[5] = (Mem_Alloc(4));
    assert(ptr[4] != NULL);
    assert(ptr[5] != NULL);
-
    assert(Mem_Free(ptr[5]) == 0);
-
+   Mem_Dump();
+   
    ptr[6] = (Mem_Alloc(9));
    ptr[7] = (Mem_Alloc(33));
    assert(ptr[6] != NULL);
    assert(ptr[7] != NULL);
-
-   assert(Mem_Free(ptr[4]) == 0);
-
+   Mem_Dump();
+   
+    assert(Mem_Free(ptr[4]) == 0);
+   
    ptr[8] = (Mem_Alloc(55));
    assert(ptr[8] != NULL);
 
@@ -40,6 +48,6 @@ int main() {
    assert(Mem_Free(ptr[7]) == 0);
    assert(Mem_Free(ptr[8]) == 0);
    assert(Mem_Free(ptr[6]) == 0);
-
+   
    exit(0);
 }

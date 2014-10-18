@@ -16,6 +16,6 @@ int main() {
    ptr[3] = Mem_Alloc(4);
    assert(Mem_Free(ptr[2]) == 0);
    assert(Mem_Free(ptr[3]) == 0);
-
+   Mem_Dump();
    exit(0);
 }

@@ -9,5 +9,6 @@ int main() {
    int* ptr = (int*) Mem_Alloc(sizeof(int));
    assert(ptr != NULL);
    assert((int)ptr % 4 == 0);
+   Mem_Dump();
    exit(0);
 }

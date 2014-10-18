@@ -4,8 +4,9 @@
 #include "mem.h"
 
 int main() {
-   assert(Mem_Init(4096) == 0);
-   void* ptr = Mem_Alloc(8);
-   assert(ptr != NULL);
+   Mem_Init(4096);
+   void* ptr = Mem_Alloc(3);
+   //assert(ptr != NULL);
+   Mem_Dump();
    exit(0);
 }
