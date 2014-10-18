@@ -1,0 +1,11 @@
+|4096				|
+|head1|4088			|
+|head1|2000	|head2|2080	|
+alloc_size = 2000
+
+newBlockSize = 2080 = blockSize - sizeofhead - allocsize
+head2 = (sizeofhead) + alloc_size
+
+
+0xf7ffc000 holds 0, put into eax
+0xf8000040 destination causing seg fault
