@@ -4,3 +4,5 @@ mem: mem.c mem.h
 
 clean:
 	rm -rf mem.o libmem.so
+
+
