@@ -323,8 +323,6 @@ int Mem_Available()
 {
   block_header* current = NULL;
   current = list_head;
-  int Size;
-  int t_Size;
   int free_size = 0;
 
   while(NULL != current)
@@ -336,10 +334,10 @@ int Mem_Available()
         free_size = current->size_status;
       }
     }
-    printf(stdout, "largest free block: %d\n", free_size);
+    fprintf(stdout, "largest free block: %d\n", free_size);
     current = current->next;
   }
 
+  return 0;
+
 }
-
-
