@@ -11,7 +11,7 @@ mem: mem.c mem.h
 	$(CC) -c -fpic mem.c -Wall -Werror
 	$(CC) -shared -o libmem1.so mem.o
 
-project3A: Project2A.c
+project3A: Project3A.c
 	$(CC) -lmem1 -L. -o $(TARGET) $(FILE) -Wall -Werror
 
 clean:
