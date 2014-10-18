@@ -1,10 +1,18 @@
-C_FILES := $(wildcard *.c)
-TARGETS := ${C_FILES:.c=}
+# Defines
+# The FILE and TARGET denote the test C file
+# that was created to test our mem alloc code
+CC = gcc
+FILE = project3A.c
+TARGET = project3A
 
-all: ${TARGETS}
+mem: mem.c mem.h
+	#gcc -c -Wall -m32 -fpic mem.c -O
+	#gcc -shared -Wall -m32 -o libmem.so mem.o -O
+	$(CC) -c -fpic mem.c -Wall -Werror
+	$(CC) -shared -o libmem1.so mem.o
 
-%: %.c
-	gcc -g -m32 -L.. -lmem -Xlinker -rpath=. -o $@ $<
+project3A: Project3A.c
+	$(CC) -lmem1 -L. -o $(TARGET) $(FILE) -Wall -Werror
 
 clean:
-	rm -rf ${TARGETS} *.o
+	rm -rf mem.o libmem.so
