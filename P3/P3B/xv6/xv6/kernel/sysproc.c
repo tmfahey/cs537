@@ -54,7 +54,7 @@ sys_sbrk(void)
   int se=proc->se;
   int page_n = PGROUNDUP(n);
   int heap_size = PGROUNDUP(proc->sz);
-  if(heap_size + page_n > USERTOP - stack){
+  if(heap_size + page_n > USERTOP - se){
     panic("Heap is overwriting stack!");
     return -1;
   }
