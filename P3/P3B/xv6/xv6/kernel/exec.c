@@ -49,12 +49,13 @@ exec(char *path, char **argv)
   ip = 0;
 
   // Allocate a one-page stack at the next page boundary
-  sz = PGROUNDUP(sz);
-  if((sz = allocuvm(pgdir, sz, sz + PGSIZE)) == 0)
+  //sz = PGROUNDUP(sz);
+  //if((sz = allocuvm(pgdir, sz, sz + PGSIZE)) == 0s)
+  if((sp = allocuvm(pgdir, MAX_PROC_MEM-PGSIZE, MAX_PROC_MEM)) == 0)
     goto bad;
 
   // Push argument strings, prepare rest of stack in ustack.
-  sp = sz;
+  //sp = sz;
   for(argc = 0; argv[argc]; argc++) {
     if(argc >= MAXARG)
       goto bad;
@@ -84,6 +85,7 @@ exec(char *path, char **argv)
   oldpgdir = proc->pgdir;
   proc->pgdir = pgdir;
   proc->sz = sz;
+  proc->se = PGSIZE;
   proc->tf->eip = elf.entry;  // main
   proc->tf->esp = sp;
   switchuvm(proc);
