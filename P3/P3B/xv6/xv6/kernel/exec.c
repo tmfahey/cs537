@@ -6,6 +6,8 @@
 #include "x86.h"
 #include "elf.h"
 
+#define MAX_PROC_MEM (640 * 1024)
+
 int
 exec(char *path, char **argv)
 {
