@@ -110,6 +110,14 @@ growproc(int n)
   
   sz = proc->sz;
   if(n > 0){
+    //prevent heap from overwriting our stack
+    int se=proc->se;
+    int page_n = PGROUNDUP(n);
+    int heap_size = PGROUNDUP(proc->sz);
+    if((heap_size + page_n) > (USERTOP - se)){
+      panic("Heap is overwriting stack!");
+      return -1;
+    }
     if((sz = allocuvm(proc->pgdir, sz, sz + n)) == 0)
       return -1;
   } else if(n < 0){
