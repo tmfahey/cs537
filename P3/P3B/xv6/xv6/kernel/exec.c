@@ -6,7 +6,6 @@
 #include "x86.h"
 #include "elf.h"
 
-#define MAX_PROC_MEM (640 * 1024)
 
 int
 exec(char *path, char **argv)
@@ -34,7 +33,7 @@ exec(char *path, char **argv)
     goto bad;
 
   // Load program into memory.
-  sz = PGSIZE-1;
+  sz = PGSIZE;
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
     if(readi(ip, (char*)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
@@ -50,10 +49,11 @@ exec(char *path, char **argv)
   iunlockput(ip);
   ip = 0;
 
-  // Allocate a one-page stack at the next page boundary
-  //sz = PGROUNDUP(sz);
+  // round up size for our heap
+  sz = PGROUNDUP(sz);
+
   //if((sz = allocuvm(pgdir, sz, sz + PGSIZE)) == 0s)
-  if((sp = allocuvm(pgdir, MAX_PROC_MEM-PGSIZE, MAX_PROC_MEM)) == 0)
+  if((sp = allocuvm(pgdir, USERTOP-PGSIZE, USERTOP)) == 0)
     goto bad;
 
   // Push argument strings, prepare rest of stack in ustack.
@@ -87,7 +87,7 @@ exec(char *path, char **argv)
   oldpgdir = proc->pgdir;
   proc->pgdir = pgdir;
   proc->sz = sz;
-  proc->se = PGSIZE;
+  proc->se = PGSIZE + PGSIZE; //stack is 1 page, make 2 so that there is an invalid between stack and heap 
   proc->tf->eip = elf.entry;  // main
   proc->tf->esp = sp;
   switchuvm(proc);

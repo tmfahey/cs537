@@ -17,8 +17,9 @@
 int
 fetchint(struct proc *p, uint addr, int *ip)
 {
-  if(addr >= p->sz || addr+4 > p->sz)
-    return -1;
+  if(addr >= p->sz || addr+4 > p->sz) //not in heap
+    if(addr < proc->tf->esp || addr+4 < proc->tf->esp) //not in stack
+      return -1;
   *ip = *(int*)(addr);
   return 0;
 }
@@ -31,10 +32,17 @@ fetchstr(struct proc *p, uint addr, char **pp)
 {
   char *s, *ep;
 
-  if(addr >= p->sz)
-    return -1;
+  if(addr >= p->sz) //not in heap
+    if(addr < proc->tf->esp) //not in stack
+      return -1;
   *pp = (char*)addr;
+  //the addr is valid
   ep = (char*)p->sz;
+  //checking to see if the address is in the stack
+  //if it is, change ep to stack top
+  if(addr>=p->sz)
+    ep=(char *)USERTOP;
+
   for(s = *pp; s < ep; s++)
     if(*s == 0)
       return s - *pp;
@@ -58,8 +66,13 @@ argptr(int n, char **pp, int size)
   
   if(argint(n, &i) < 0)
     return -1;
-  if((uint)i >= proc->sz || (uint)i+size > proc->sz)
-    return -1;
+  if((uint)i >= proc->sz || (uint)i+size > proc->sz) //not in heap
+    if((uint) i<proc->tf->esp || (uint)i+size < proc->tf->esp) //not in stack
+      return -1;
+
+  if((uint)i>=0 && (uint)i<PGSIZE) //user trying to access first page
+    return 1;
+  
   *pp = (char*)i;
   return 0;
 }

@@ -318,6 +318,22 @@ copyuvm(pde_t *pgdir, uint sz)
     if(mappages(d, (void*)i, PGSIZE, PADDR(mem), PTE_W|PTE_U) < 0)
       goto bad;
   }
+
+  //copy our stack to end of address space
+  int se = proc->se;
+  for(i = PGSIZE; i < se; i += PGSIZE){
+    int stack_address = (USERTOP - se + i);
+    if((pte = walkpgdir(pgdir, (void*)stack_address, 0)) == 0)
+      panic("copyuvm: pte should exist");
+    if(!(*pte & PTE_P))
+      panic("copyuvm: page not present");
+    pa = PTE_ADDR(*pte);
+    if((mem = kalloc()) == 0)
+      goto bad;
+    memmove(mem, (char*)pa, PGSIZE);
+    if(mappages(d, (void*)stack_address, PGSIZE, PADDR(mem), PTE_W|PTE_U) < 0)
+      goto bad;
+  }
   return d;
 
 bad:

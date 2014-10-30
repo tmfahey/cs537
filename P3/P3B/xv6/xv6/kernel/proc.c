@@ -91,7 +91,7 @@ userinit(void)
   p->tf->es = p->tf->ds;
   p->tf->ss = p->tf->ds;
   p->tf->eflags = FL_IF;
-  p->tf->esp = PGSIZE;
+  p->tf->esp = (PGSIZE);
   p->tf->eip = 0;  // beginning of initcode.S
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
@@ -142,6 +142,7 @@ fork(void)
     return -1;
   }
   np->sz = proc->sz;
+  np->se = proc->se; //give child our stack size
   np->parent = proc;
   *np->tf = *proc->tf;
 
