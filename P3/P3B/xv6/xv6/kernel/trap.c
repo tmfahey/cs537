@@ -44,26 +44,6 @@ trap(struct trapframe *tf)
     return;
   }
 
-  //////////////////////p3.2////////////////////////////
-  // when stack needs to grow (size of current stack > allocated stack)
-  // -PGSIZE to eliminate the size of invalid page between heap and stack
-  cprintf("in kernel/trap.c: tf->esp %d\n",tf->esp);
-  //get the virtual addr that causes the trap
-  int invalidAddr=rcr2();
-  cprintf("invalidAddr:%d\n",invalidAddr);
-  // require the virtual addr that is causing problem to be within 1 page of the stack
-  if ((T_PGFLT == tf->trapno) && (invalidAddr >= (proc->se - PGSIZE)) && (invalidAddr < proc->se )){
-    //check if we are going to overwrite on heap
-    if ((proc->se - proc->sz) >= PGSIZE ){
-      // allocate another page for stack
-      if ((allocuvm(proc->pgdir, proc->se, proc->se - PGSIZE ))!=0) {//when success
-        proc->se = proc->se - PGSIZE;
-      return;
-      }
-    }
-  }
-  ///////////////////////////////////////////////////////////////////
-
   switch(tf->trapno){
   case T_IRQ0 + IRQ_TIMER:
     if(cpu->id == 0){
@@ -103,11 +83,25 @@ trap(struct trapframe *tf)
               tf->trapno, cpu->id, tf->eip, rcr2());
       panic("trap");
     }
+
+    int invalidAddr=rcr2();
+    if ((T_PGFLT == tf->trapno) && (invalidAddr >= (proc->se - PGSIZE)) && (invalidAddr < proc->se )){
+      //check if we are going to overwrite on heap
+      if ((proc->se - proc->sz) >= PGSIZE ){
+        // allocate another page for stack
+        if ((allocuvm(proc->pgdir, proc->se, proc->se - PGSIZE ))!=0) {//when success
+          proc->se = proc->se - PGSIZE;
+        return;
+        }
+      }
+    }
+
     // In user space, assume process misbehaved.
     cprintf("pid %d %s: trap %d err %d on cpu %d "
             "eip 0x%x addr 0x%x--kill proc\n",
             proc->pid, proc->name, tf->trapno, tf->err, cpu->id, tf->eip, 
             rcr2());
+
     proc->killed = 1;
   }
 

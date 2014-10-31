@@ -93,7 +93,8 @@ userinit(void)
   p->tf->ss = p->tf->ds;
   p->tf->eflags = FL_IF;
   p->tf->esp = USERTOP;
-  p->tf->eip = PGSIZE;  // beginning of initcode.S
+  p->tf->eip = 0;
+  //p->tf->eip = PGSIZE;  // beginning of initcode.S
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
