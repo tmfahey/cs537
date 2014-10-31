@@ -117,7 +117,7 @@ growproc(int n)
     int page_n = PGROUNDUP(n);
     int heap_size = PGROUNDUP(proc->sz);
     if((heap_size + page_n) > (se - PGSIZE)){
-      panic("Heap is overwriting stack!");
+      //panic("Heap is overwriting stack!"); //just return -1 is sufficient. No need to panic!
       return -1;
     }
     if((sz = allocuvm(proc->pgdir, sz, sz + n)) == 0)

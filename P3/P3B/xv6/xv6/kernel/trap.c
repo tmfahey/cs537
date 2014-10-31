@@ -87,9 +87,9 @@ trap(struct trapframe *tf)
     int invalidAddr=rcr2();
     if ((T_PGFLT == tf->trapno) && (invalidAddr >= (proc->se - PGSIZE)) && (invalidAddr < proc->se )){
       //check if we are going to overwrite on heap
-      if ((proc->se - proc->sz) >= PGSIZE ){
+      if ((proc->se - proc->sz) >= 2*PGSIZE ){
         // allocate another page for stack
-        if ((allocuvm(proc->pgdir, proc->se, proc->se - PGSIZE ))!=0) {//when success
+        if ((allocuvm(proc->pgdir, proc->se-PGSIZE, proc->se))!=0) {//when success
           proc->se = proc->se - PGSIZE;
         return;
         }
