@@ -195,13 +195,13 @@ inituvm(pde_t *pgdir, char *init, uint sz)
     panic("inituvm: more than a page");
   mem = kalloc();
   memset(mem, 0, PGSIZE);
-  mappages(pgdir, 0, PGSIZE, PADDR(mem), PTE_W|PTE_U);
-  //mappages(pgdir, (void*)PGSIZE, PGSIZE, PADDR(mem), PTE_W|PTE_U);
+  //mappages(pgdir, 0, PGSIZE, PADDR(mem), PTE_W|PTE_U);
+  mappages(pgdir, (char*)PGSIZE, PGSIZE, PADDR(mem), PTE_W|PTE_U);
   memmove(mem, init, sz);
 
   mem = kalloc();
   memset(mem, 0, PGSIZE);
-  mappages(pgdir, (void*)USERTOP-PGSIZE, PGSIZE, PADDR(mem), PTE_W|PTE_U);
+  mappages(pgdir, (char*)(USERTOP-PGSIZE), PGSIZE, PADDR(mem), PTE_W|PTE_U);
 
 }
 

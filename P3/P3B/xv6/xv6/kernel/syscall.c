@@ -17,9 +17,9 @@
 int
 fetchint(struct proc *p, uint addr, int *ip)
 {
-  if(addr >= p->sz || addr+4 > p->sz) //not in heap
-    if(addr < (USERTOP - proc->se) || addr+4 < (USERTOP - proc->se)) //not in stack
-      return -1;
+  if(addr >= p->sz || addr+4 > p->sz || addr < PGSIZE) //not in heap
+    if(addr < proc->se || addr+4 >= USERTOP) //not in stack
+       return -1;
   *ip = *(int*)(addr);
   return 0;
 }
@@ -32,15 +32,15 @@ fetchstr(struct proc *p, uint addr, char **pp)
 {
   char *s, *ep;
 
-  if(addr >= p->sz) //not in heap
-    if(addr < (USERTOP - proc->se)) //not in stack
+  if (addr >= p->sz || addr < PGSIZE) //not in heap
+    if(addr < proc->se) //not in stack
       return -1;
   *pp = (char*)addr;
   //the addr is valid
   ep = (char*)p->sz;
   //checking to see if the address is in the stack
   //if it is, change ep to stack top
-  if(addr>=p->sz)
+  if(addr>=p->se)
     ep=(char *)USERTOP;
 
   for(s = *pp; s < ep; s++)
