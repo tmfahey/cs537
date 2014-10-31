@@ -67,7 +67,7 @@ argptr(int n, char **pp, int size)
   
   if(argint(n, &i) < 0)
     return -1;
-  if(p->pid != 1 && ((uint)i+size > proc->sz || (uint)i < PGSIZE)) //not in heap
+  if(proc->pid != 1 && ((uint)i+size > proc->sz || (uint)i < PGSIZE)) //not in heap
     if((uint)i < proc->se || (uint)i+size > USERTOP) //not in stack
       return -1;
 
