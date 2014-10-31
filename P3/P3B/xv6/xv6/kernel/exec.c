@@ -87,7 +87,7 @@ exec(char *path, char **argv)
   oldpgdir = proc->pgdir;
   proc->pgdir = pgdir;
   proc->sz = sz;
-  proc->se = USERTOP - PGSIZE; //stack is 1 page, make 2 so that there is an invalid between stack and heap 
+  proc->se = USERTOP - PGSIZE; //stack is 1 page
   proc->tf->eip = elf.entry;  // main
   proc->tf->esp = sp;
   switchuvm(proc);

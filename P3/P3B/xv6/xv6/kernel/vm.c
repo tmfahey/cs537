@@ -327,8 +327,8 @@ copyuvm(pde_t *pgdir, uint sz)
 
   //copy our stack to end of address space
   int se = proc->se;
-  for(i = PGSIZE; i < se; i += PGSIZE){
-    int stack_address = (USERTOP - se + i);
+  for(i = se; i < USERTOP; i += PGSIZE){
+    int stack_address = i;
     if((pte = walkpgdir(pgdir, (void*)stack_address, 0)) == 0)
       panic("copyuvm: pte should exist");
     if(!(*pte & PTE_P))

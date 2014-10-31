@@ -1,0 +1,20 @@
+body
+{
+	background: white;
+	color: black;
+}
+
+A:link
+{
+	color: #990000;
+}
+
+A:visited
+{
+	color: #CC6600;
+}
+
+A:active
+{
+	color: #3333CC;
+}

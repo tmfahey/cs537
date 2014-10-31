@@ -1,0 +1,310 @@
+
+<!-- saved from url=(0057)http://pages.cs.wisc.edu/~cs354-1/cs354/homeworks/a5.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>CS/ECE 354, Assignment 5</title>
+<link rel="stylesheet" type="text/css" href="./CS ECE 354, Assignment 5_files/cs.css">
+<style type="text/css"></style></head>
+
+<body style="">
+
+<center><h1> Assignment 5</h1></center>
+<center><h1>CS/ECE 354, Fall 2013</h1></center>
+<hr>
+<h3>Send e-mail questions to Cherin Joseph, <a href="mailto:cherin@cs.wisc.edu">cherin@cs.wisc.edu</a> 
+<br>Please begin the Subject line with [CS354] for filtering purposes.
+<p>
+<br> Due Wednesday Dec. 11, before 5pm.</p></h3>
+
+<hr> <!-- ----------------------------------------------------- -->
+<h3>Collaboration Policy</h3>
+<p>
+For this assignment,
+you may work in pairs (2 people).
+All students (whether working in a pair or not) must individually
+turn in the assignment.
+Therefore, 2 copies of the assignment will be turned in
+for those working as a pair.
+The grader will choose to grade only one copy of a pair's work,
+and assign the same score to both students.
+</p><p>
+If one member of a pair does something unexpected with respect to turning 
+in the assignment 
+(for example: bad copy of the source code, late,  or perhaps not turning in 
+portions of the assignment), 
+then <i>both</i> of the pair get the same penalty and the same score.
+</p><p>
+If working in a pair, the names and sections of <i>both</i> students
+must appear as comments at the top of all files of the turned in assignment.
+</p><hr> <!-- ----------------------------------------------------- -->
+
+<h2>Overview</h2>
+
+<p>
+The purpose of this program is 
+to further increase C programming skills,
+working a lot more with pointers and again using a Makefile.
+</p>
+<p>
+Please read this entire assignment specification before starting
+on the first step.
+</p>
+
+<h3>Program Description</h3>
+
+
+<p>
+For this assignment, you will be given the structure for
+a simple shared library that implements 
+the memory allocation functions
+<code>malloc()</code> and <code>free()</code>.
+Everything is present, except for the definitions of those
+two functions, called <code>Mem_Alloc()</code> and <code>Mem_Free()</code>
+in this library.
+</p>
+
+<h3> Step One: Understand the Code</h3>
+
+<p>
+Memory allocators have two distinct tasks. 
+First, the memory allocator asks the operating system to expand the heap 
+portion of the process's address space by calling either <code>sbrk()</code> or <code>mmap()</code>. 
+Second, the memory allocator doles out this memory to the calling process. 
+This involves managing a free list of memory and finding a contiguous chunk of 
+memory that is large enough for the user's request; 
+when the user later frees memory, it is added back to this list.
+</p>
+<p>
+This memory allocator is usually provided as part of a standard library,
+and it is not part of the OS. 
+To be clear, the memory allocator operates entirely within the virtual address space
+of a single process and knows nothing about which physical pages have been 
+allocated to this process or the mapping from logical addresses to physical addresses.
+</p>
+<p>
+Classic <code>malloc()</code> and <code>free()</code> are defined as follows:
+</p>
+<ul>
+<li>
+<code>void *malloc(size_t size)</code>: 
+<code>malloc()</code> allocates <code>size</code> bytes and returns a pointer to the allocated memory. 
+The memory is not cleared.
+</li>
+<li>
+<code>void free(void *ptr)</code>: 
+<code>free()</code> frees the memory space pointed to by <code>ptr</code>, 
+which must have been returned by a previous call to <code>malloc()</code> (or <code>calloc()</code> or <code>realloc()</code>). 
+Otherwise, or if <code>free(ptr)</code> has already been called before, 
+undefined behaviour occurs. If <code>ptr</code> is <code>NULL</code>, no operation is performed.
+</li>
+</ul>
+
+<p>
+</p>
+<p>
+The source code files you will need are in the directory:
+</p>
+<pre>   /p/course/cs354-common/public/html/alloc.program/
+</pre>
+<p>
+Copy the files <code>Makefile</code>, <code>mem.c</code> and <code>mem.h</code>
+to your own directory.
+You will probably copy more files for Step 3, but these 3 are sufficient for this step.
+In <code>mem.c</code> is fully working code for two functions:
+<code>Mem_Init()</code> and <code>Mem_Dump()</code>.
+Look at them, and understand what they do, as well as how they accomplish
+their task.
+</p>
+<p>
+<code>Mem_Init()</code> sets up and initializes the heap space that this
+module manages.
+</p>
+<p>
+<code>Mem_Dump()</code> is used for debugging; it prints a list of
+all the memory blocks (both free and allocated).
+It will be incredibly useful to you when you are trying to determine if
+your code works properly.
+As a programming note: take notice of this function.
+In the future, when you are working on implementing a complex program,
+a function like this that produces lots of useful information about a
+data structure can be well worth the time you might spend implementing it.
+</p>
+
+<h3> Step Two: Write the Code</h3>
+<p> 
+<b>Note: Do <i>not</i> change the interface.  Do not change anything within
+file <code>mem.h</code>.  Do not change any part of functions <code>Mem_Init()</code> 
+or <code>Mem_Dump()</code>.</b>
+</p>
+<p> 
+Write the code to implement <code>Mem_Alloc()</code>  and <code>Mem_Free()</code>.
+Use a <b>first fit</b> algorithm.
+When freeing memory, always coalesce.
+Use the linked list structure as defined and described in <code>mem.c</code>
+for your data structure; it is the one described in your textbook in
+section 9.9.6, and it is a bit different than the variation described in class.
+Here are definitions for the functions:
+</p>
+<ul>
+<li>
+<code>void *Mem_Alloc(int size)</code>: 
+<br><code>Mem_Alloc()</code> is similar to the library function <code>malloc()</code>. 
+<code>Mem_Alloc</code> takes as an input parameter the <code>size</code> in bytes 
+of the object to be allocated,
+and it returns a pointer to the start of that object.
+The function returns <code>NULL</code> if there is not enough contiguous free space 
+within <code>sizeOfRegion</code> allocated by <code>Mem_Init</code> 
+to satisfy this request. 
+For better performance, 
+<code>Mem_Alloc()</code> is to return 4-byte aligned chunks of memory. 
+For example if a user requests 1 byte of memory, 
+the <code>Mem_Alloc()</code> implementation should return 4 bytes of memory,
+so that the next free block will also be 4-byte aligned.
+To debug whether you return 4-byte aligned pointers, 
+you could print the pointer this way:
+<code><pre>   printf("%08x", ptr) .
+</pre></code>
+
+The last digit should be a multiple of 4 (that is, 0, 4, 8, or C).
+For example, b7b2c04c is okay, and b7b2c043 is <i>not</i> okay.
+</li>
+<li>
+<code>int Mem_Free(void *ptr)</code>: 
+<br><code>Mem_Free()</code> frees the memory object that <code>ptr</code> points to. 
+Just like with the standard <code>free()</code>, 
+if <code>ptr</code> is <code>NULL</code>, then no operation is performed. 
+The function returns 0 on success and -1 if 
+the <code>ptr</code> was not allocated by <code>Mem_Alloc()</code>. 
+If <code>ptr</code> is <code>NULL</code>, also return -1.
+</li>
+</ul>
+
+<h3> Step Three: Test the Code</h3>
+<p>
+To test your code, compile it into a shared library using the
+provided Makefile.
+</p>
+<p>
+You will then need to write a separate program that links in and makes
+calls to the functions in this shared library.
+To help you do this, there are several sample programs and a Makefile within the directory
+</p>
+<pre>   /p/course/cs354-common/public/html/alloc.program/tests
+</pre>
+<p>
+In this directory, file <code>testlist.txt</code> contains a list
+of the tests we are giving you to help you start testing your code.
+The tests are ordered by difficulty. 
+Please note that these tests are not sufficient or complete for
+testing your code; 
+they are meant to help you get started.
+</p>
+<p>
+To link with your library, you specify the base name of the library with 
+the option <code>-lmem</code> and the path, 
+so that the linker can find the library "-L.".
+</p><pre>gcc mymain.c -lmem -L. -o myprogram -m32
+</pre>
+
+A form of this command is in the Makefile in the <code>tests/</code> directory.
+Before you run the created dynamically linked executable <code>myprogram</code>,
+you will need to set the environment variable, <code>LD_LIBRARY_PATH</code>,
+so that the system can find your library at run time.
+Assuming you always run <code>myprogram</code> from (your copy of) 
+this same <code>tests/</code>
+directory, 
+and the dynamically linked library (the <code>.so</code> file) is
+one level up,
+that directory (to a Linux shell) is '..', so you can use the command:
+
+<pre>setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:..
+</pre>
+
+Or, if you use bash shell:
+<pre>export LD_LIBRARY_PATH=.. 
+</pre>
+
+
+If the setenv command returns an error "LD_LIBRARY_PATH: Undefined variable", 
+do not panic. 
+The error implies that your shell has not defined the environment variable. 
+In this case, run:
+
+<pre>setenv LD_LIBRARY_PATH ..
+</pre>
+
+<p></p>
+
+<h3>Handing In the Assignment</h3>
+
+<p>Turn in file <code>mem.c</code>.
+Copy this file into your handin directory. 
+Your handin directory for this project is 
+<br><code>/p/course/cs354-common/public/fall13.handin/login/p5</code> 
+<br>where <code>login</code> is your login. 
+
+</p><h3>Requirements</h3>
+
+<ol>
+<li>
+Within the comment block at the top of <code>mem.c</code>,
+add a new line of the form: 
+<pre>  * MODIFIED BY:  name, section#, partnername, section#
+</pre>
+</li>
+<li>
+Your program is to continue the style of the code
+already in the file.
+Use the same types of comments, and use tabs/spaces as the existing
+code does. 
+</li>
+<li>
+Document your added functions with inline comments!
+</li>
+<li>
+Use the <b>mumble</b> Linux machines for this assignment!
+A penalty will be imposed for any program that was obviously edited
+on a Windows machine and transferred to the Unix machines
+for turning in.
+We are annoyed when we see Windows line endings (^M) at the
+end of every line, so we take off points.
+</li>
+<li>
+Your programs must compile
+on a <b>mumble</b> Linux machine as indicated in this specification
+<i>without warnings or errors</i>.
+</li>
+<li>
+<b>
+Do <i>not</i> use any <code>stdlib</code> allocate or free functions 
+in this program!
+</b>
+The penalty for using <code>malloc()</code> (or friends) will be
+no credit for this assignment.
+</li>
+</ol>
+
+<h3>About Copying Code and Academic Misconduct</h3>
+<p>
+For almost any C program that does something useful,
+someone has already written this program and
+further, has posted it for others to use.
+This program does not do much that is useful,
+and is not likely posted anywhere.
+Still, it is academic misconduct for you to copy or use some or
+all of a program
+that has been written by someone else.
+</p>
+<p>
+The penalty for academic misconduct on this assignment
+(and all CS/ECE 354 assignments)
+will be a failing grade in the course.
+This penalty is significantly more harsh than if you simply do not 
+do the assignment.
+You will gain much more by doing the assignment
+than by copying, possibly modifying,
+and turning in someone else's effort.
+</p>
+
+
+
+</body></html>
