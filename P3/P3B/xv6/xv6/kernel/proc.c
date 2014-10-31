@@ -84,8 +84,7 @@ userinit(void)
   if((p->pgdir = setupkvm()) == 0)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
-  //p->sz = PGSIZE;
-  p->sz = 2*PGSIZE;
+  p->sz = PGSIZE;
   p->se = USERTOP-PGSIZE;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
@@ -116,7 +115,7 @@ growproc(int n)
     int se=proc->se;
     int page_n = PGROUNDUP(n);
     int heap_size = PGROUNDUP(proc->sz);
-    if((heap_size + page_n) > (se)){
+    if((heap_size + page_n) > (se - PGSIZE)){
       panic("Heap is overwriting stack!");
       return -1;
     }
