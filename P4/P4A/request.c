@@ -146,6 +146,37 @@ void requestServeStatic(int fd, char *filename, int filesize)
 
 }
 
+
+//
+// Return 1 if static, 0 if dynamic content
+// Calculates filename (and cgiargs, for dynamic) from uri
+//
+int requestURIInfo(char *uri, char *filename, char *cgiargs) 
+{
+   char *ptr;
+
+   if (!strstr(uri, "cgi")) {
+      // static
+      strcpy(cgiargs, "");
+      sprintf(filename, ".%s", uri);
+      if (uri[strlen(uri)-1] == '/') {
+         strcat(filename, "home.html");
+      }
+      return 1;
+   } else {
+      // dynamic
+      ptr = index(uri, '?');
+      if (ptr) {
+         strcpy(cgiargs, ptr+1);
+         *ptr = '\0';
+      } else {
+         strcpy(cgiargs, "");
+      }
+      sprintf(filename, ".%s", uri);
+      return 0;
+   }
+}
+
 // handle a request
 void requestHandle(int fd)
 {
