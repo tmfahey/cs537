@@ -45,7 +45,7 @@ int addRequest(int requestFD){
         buffer[bufTail] = requestFD;//put fd in queue
         bufTail = (bufTail + 1)%bufSize; //inc tail
         bufCount++; //inc # items in buf
-        printf("added fd %d to buffer.\n", requestFD);
+        //printf("added fd %d to buffer.\n", requestFD);
     }
     return 0;
 }
