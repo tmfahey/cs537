@@ -75,7 +75,7 @@ void* consumer(void* arg){
             pthread_cond_wait(&doRequest, &mutex);
         }
         int requestFD = getNextRequest();
-        printf("fd %d grabbed from buffer.\n", requestFD);
+        //printf("fd %d grabbed from buffer.\n", requestFD);
         pthread_cond_signal(&notFull); //tell main we are not full
         pthread_mutex_unlock(&mutex);//unlock
         requestHandle(requestFD);//do request
