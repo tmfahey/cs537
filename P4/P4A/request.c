@@ -178,7 +178,7 @@ int requestURIInfo(char *uri, char *filename, char *cgiargs)
 }
 
 // handle a request
-void requestHandle(int fd)
+void requestHandle(int fd, int *size, int serve)
 {
 
    int is_static;
@@ -205,19 +205,21 @@ void requestHandle(int fd)
       return;
    }
 
+   *size = sbuf.st_size;
+
    if (is_static) {
       if (!(S_ISREG(sbuf.st_mode)) || !(S_IRUSR & sbuf.st_mode)) {
          requestError(fd, filename, "403", "Forbidden", "CS537 Server could not read this file");
          return;
       }
-      requestServeStatic(fd, filename, sbuf.st_size);
+      if (1 == serve)
+         requestServeStatic(fd, filename, sbuf.st_size);
    } else {
       if (!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode)) {
          requestError(fd, filename, "403", "Forbidden", "CS537 Server could not run this CGI program");
          return;
       }
-      requestServeDynamic(fd, filename, cgiargs);
+      if (1 == serve)
+         requestServeDynamic(fd, filename, cgiargs);
    }
 }
-
-

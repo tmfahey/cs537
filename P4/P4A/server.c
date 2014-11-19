@@ -35,6 +35,7 @@ void getargs(int *port, int *threads, int *buffers, int argc, char *argv[])
     *buffers = atoi(argv[3]);
 }
 
+
 /**
  * This is actually a enqueue function, item will be put to the end of the queue
  */
@@ -67,18 +68,46 @@ int getNextRequest(){
 
 }
 
+
+void sortBuffer(){
+   int i, j, tmp;
+   int size_a, size_b;
+
+   for (i = bufHead; i < bufTail; ++i) {
+      for (j = i + 1; j < bufTail; ++j) {
+         requestHandle(buffer[i], &size_a, 0);
+         requestHandle(buffer[j], &size_b, 0);
+         
+         printf("buffer = %d\n",buffer[i]);
+ 
+         //if (buffer[i] > buffer[j]) {
+         if (size_a > size_b) {
+            tmp = buffer[i];
+            buffer[i] = buffer[j];
+            buffer[j] = tmp;
+         }
+      }
+   }
+}
+
 //Consumer, for processing requests from buffer
 void* consumer(void* arg){
+   int fileSize;
     while(1){
         pthread_mutex_lock(&mutex);
         while(bufCount == 0){//if there is no request in the queue, make the thread wait
             pthread_cond_wait(&doRequest, &mutex);
         }
+
+	// sort the queue
+	sortBuffer();
+
         int requestFD = getNextRequest();
         //printf("fd %d grabbed from buffer.\n", requestFD);
         pthread_cond_signal(&notFull); //tell main we are not full
         pthread_mutex_unlock(&mutex);//unlock
-        requestHandle(requestFD);//do request
+        requestHandle(requestFD, &fileSize, 1);//do request
+        //printf("Size = %d\n",fileSize);
         Close(requestFD); //close the request
     }
 }
@@ -123,10 +152,4 @@ int main(int argc, char *argv[])
         pthread_cond_signal(&doRequest); //tell consumers to do request
         pthread_mutex_unlock(&mutex); //give up the mutex
     }
-}
-
-
-    
-
-
- 
+} 
