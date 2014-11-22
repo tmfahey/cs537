@@ -152,12 +152,189 @@ fork(void)
     if(proc->ofile[i])
       np->ofile[i] = filedup(proc->ofile[i]);
   np->cwd = idup(proc->cwd);
+
+  //mark not a thread
+  np->isThread = 0;
  
   pid = np->pid;
   np->state = RUNNABLE;
   safestrcpy(np->name, proc->name, sizeof(proc->name));
   return pid;
 }
+
+
+
+// Create a new process (as a thread) copying p as the parent.
+// Sets up stack of the child thread in the heap of the parent thread.
+// But parent and child threads share the same page directory.
+int
+clone(void)
+{
+  int i, pid;
+  void *stack;
+  struct proc *np;
+
+  // Obtain stack size as argument
+  if (argptr(0, (void*)&stack, sizeof(stack)) < 0)
+    return -1;
+
+  //ensure the stack passed in is page alined
+  if((uint)stack % PGSIZE != 0){
+    cprintf("STACK NOT PAGE ALIGNED");
+    return -1;
+  }
+  if((uint)stack + PGSIZE > proc->sz){
+    cprintf("STACK WON'T FIT IN HEAP!")
+    return -1;
+  }
+
+
+  //alloc proc is fine, keep the same
+  // Allocate process.
+  if((np = allocproc()) == 0)
+    return -1;
+
+
+  // no longer need to copyuvm, rather now both will point to the
+  // same page directiory (sz and parent will be the same).
+  
+  // Copy process state from p.
+  /*if((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
+    kfree(np->kstack);
+    np->kstack = 0;
+    np->state = UNUSED;
+    return -1;
+  }*/
+  np->pgdir = proc->pgdir; //np and proc share address space
+  
+  np->sz = proc->sz;
+  np->parent = proc;
+  *np->tf = *proc->tf;
+  np->stack = stack; //save the stack pointer for thread
+  np->isThread = 1; //signal that this is a thread
+  
+  //copy stack to the new address, assumes page alignment
+  memcpy(stack, (proc->tf->esp & 0x0FFF), PGSIZE);
+  np->tf->esp = (proc->tf->esp & 0x0FFF) + stack;//using the new stack
+  np->tf->ebp = (proc->tf->ebp & 0x0FFF) + stack;
+
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = 0;
+
+  for(i = 0; i < NOFILE; i++)
+    if(proc->ofile[i])
+      np->ofile[i] = filedup(proc->ofile[i]);
+  np->cwd = idup(proc->cwd);
+ 
+  pid = np->pid;
+  np->state = RUNNABLE;
+  safestrcpy(np->name, proc->name, sizeof(proc->name));
+  return pid;
+}
+
+
+// waits for a child thread that shares the address space
+// with the calling process. It returns the PID of waited-for
+// child or -1 if none. The location of the child's user stack
+// is copied into the argument stack 
+int
+join(void)
+{
+  struct proc *p;
+  int havekids, pid;
+
+  void** childStack;
+  if(argptr(0, (void*)&childStack,sizeof(childStack)) < 0 )
+    return -1;
+    cprintf("in join: childStack value: %x\n",*childStack);
+  
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for zombie children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != proc ||  0==p->isThread) // check it is indeed a thread, not a process
+        continue;
+      havekids = 1;
+
+      if(p->state == ZOMBIE ){ 
+        cprintf("in join: find child thread: pid: %d\n",p->pid);        
+        // Found one.
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        //freevm(p->pgdir);   //don't free the whole vm space
+        p->state = UNUSED;
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        
+        p->isThread=0; //p4
+        release(&ptable.lock);
+        //copy the location of child stack to childStack
+        *childStack=p->stack;
+        return pid;
+      }
+    }
+    // No point waiting if we don't have any children.
+    if(!havekids || proc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(proc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
+
+//put a thread to sleep
+int threadSleep(void){
+  lock_t* outsideLock;
+  // AKS - Doubtful?
+
+  if(argptr(0,(void*)&outsideLock,sizeof(outsideLock)) < 0)
+    return -1;
+  
+  if(proc == 0)
+    panic("sleep");
+  
+  acquire(&ptable.lock);  //DOC: sleeplock1
+  
+  // Go to sleep.
+  //  proc->chan = chan;
+  proc->state = SLEEPING;
+  xchg(outsideLock, 0); // release the outside lock
+  /* cprintf("outside lock addr: %x, value:%d \n",outsideLock,*outsideLock); */
+  sched();
+
+  // Tidy up.
+  proc->chan = 0;
+
+  release(&ptable.lock);
+  
+  return 0;
+}
+
+
+//wake up a particular thread
+int threadWake(void){
+  int pid;
+  struct proc *p;
+  
+  if(argint(0, &pid) < 0)
+    return -1;
+  
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->state == SLEEPING && p->pid == pid){
+      p->state = RUNNABLE;
+      break;
+    }
+  release(&ptable.lock);
+  return 0;
+}
+
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
@@ -215,7 +392,7 @@ wait(void)
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc)
+      if(p->parent != proc || 1==p->isThread) //only handle processes
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
@@ -223,12 +400,18 @@ wait(void)
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
-        freevm(p->pgdir);
+
+        //Perform freevm only if it's a forked process
+        if (1 != p->isThread) {
+          freevm(p->pgdir);
+        }
+
         p->state = UNUSED;
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+        p->isThread = 0;
         release(&ptable.lock);
         return pid;
       }

@@ -12,6 +12,34 @@ sys_fork(void)
   return fork();
 }
 
+//added for p4
+int
+sys_clone(void)
+{
+  return clone();
+}
+
+//added for p4
+int
+sys_join(void)
+{
+  return join();
+}
+
+//added for p4
+int
+sys_threadSleep(void)
+{
+  return threadSleep();
+}
+
+//added for p4
+int
+sys_threadWake(void)
+{
+  return threadWake();
+}
+
 int
 sys_exit(void)
 {

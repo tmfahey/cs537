@@ -24,4 +24,11 @@ int sys_wait(void);
 int sys_write(void);
 int sys_uptime(void);
 
+// Additional system calls for threads (P4B)
+int sys_clone(void);
+int sys_join(void);
+int sys_threadSleep(void);
+int sys_threadwait(void);
+
+
 #endif // _SYSFUNC_H_

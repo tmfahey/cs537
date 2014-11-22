@@ -109,6 +109,12 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+//added system call for p4
+int             clone(void);
+int             join(void);
+//added system call for p4
+int             threadSleep(void);
+int             threadWake(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
