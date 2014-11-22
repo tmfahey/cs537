@@ -184,7 +184,7 @@ clone(void)
     return -1;
   }
   if((uint)stack + PGSIZE > proc->sz){
-    cprintf("STACK WON'T FIT IN HEAP!")
+    cprintf("STACK WON'T FIT IN HEAP!");
     return -1;
   }
 
@@ -214,9 +214,9 @@ clone(void)
   np->isThread = 1; //signal that this is a thread
   
   //copy stack to the new address, assumes page alignment
-  memcpy(stack, (proc->tf->esp & 0x0FFF), PGSIZE);
-  np->tf->esp = (proc->tf->esp & 0x0FFF) + stack;//using the new stack
-  np->tf->ebp = (proc->tf->ebp & 0x0FFF) + stack;
+  //memmove(stack, (proc->tf->esp & 0x0FFF), PGSIZE);
+  np->tf->esp = (uint)((proc->tf->esp & 0x0FFF) + stack);//using the new stack
+  np->tf->ebp = (uint)((proc->tf->ebp & 0x0FFF) + stack);
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -290,11 +290,11 @@ join(void)
 
 //put a thread to sleep
 int threadSleep(void){
-  lock_t* outsideLock;
+  //lock_t* outsideLock;
   // AKS - Doubtful?
 
-  if(argptr(0,(void*)&outsideLock,sizeof(outsideLock)) < 0)
-    return -1;
+  //if(argptr(0,(void*)&outsideLock,sizeof(outsideLock)) < 0)
+  //  return -1;
   
   if(proc == 0)
     panic("sleep");
@@ -304,7 +304,7 @@ int threadSleep(void){
   // Go to sleep.
   //  proc->chan = chan;
   proc->state = SLEEPING;
-  xchg(outsideLock, 0); // release the outside lock
+  //xchg(outsideLock, 0); // release the outside lock
   /* cprintf("outside lock addr: %x, value:%d \n",outsideLock,*outsideLock); */
   sched();
 

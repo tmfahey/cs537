@@ -28,7 +28,7 @@ int sys_uptime(void);
 int sys_clone(void);
 int sys_join(void);
 int sys_threadSleep(void);
-int sys_threadwait(void);
+int sys_threadWake(void);
 
 
 #endif // _SYSFUNC_H_

@@ -107,7 +107,7 @@ static int (*syscalls[])(void) = {
 [SYS_clone]   sys_clone,
 [SYS_join]    sys_join,
 [SYS_threadSleep] sys_threadSleep,
-[SYS_threadWake] sys_threadWait;
+[SYS_threadWake] sys_threadWake
 
 };
 
