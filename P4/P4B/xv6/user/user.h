@@ -25,6 +25,9 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+//p4 thread functions
+int thread_create(void (*fn)(void*), void *arg);
+int thread_join();
 
 // user library functions (ulib.c)
 int stat(char*, struct stat*);
