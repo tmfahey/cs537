@@ -14,16 +14,23 @@ int main(int argc, char *argv[]) {
     printf(2, "error!\n");
   } else if (tid == 0) {
     // child
-    for(;;) {
+    int i = 0;
+    while(i<2) {
       x++;
       sleep(100);
+      i++;
     }
   } else {
+    int j = 0;
     // parent
-    for(;;) {
+    while(j<2){
       printf(1, "x = %d\n", x);
       sleep(100);
+      j++;
     }
+    printf(1, "Parent here");
+    j = thread_join();
+    printf(1, "Join: %d\n", j);
   }
 
   exit();

@@ -28,8 +28,7 @@ int uptime(void);
 //p4 thread functions
 int thread_create(void (*fn)(void*), void *arg);
 int thread_join(void);
-int clone(int*);
-
+int clone(int*);;
 // user library functions (ulib.c)
 int stat(char*, struct stat*);
 char* strcpy(char*, char*);
