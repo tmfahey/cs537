@@ -45,7 +45,7 @@ int thread_create(void (*fn)(void *), void *arg) {
 	}
 }
 
-int thread_join(){
+int join(){
 	void *child_stack;
 	int child_pid = join(&child_stack);
 	free(child_stack);

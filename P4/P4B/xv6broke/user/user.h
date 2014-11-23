@@ -27,7 +27,7 @@ int sleep(int);
 int uptime(void);
 //p4 thread functions
 int thread_create(void (*fn)(void*), void *arg);
-int thread_join();
+int join(void);
 
 // user library functions (ulib.c)
 int stat(char*, struct stat*);

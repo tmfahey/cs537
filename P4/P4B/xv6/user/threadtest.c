@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
       j++;
     }
     printf(1, "Parent here");
-    j = thread_join();
+    j = join();
     printf(1, "Join: %d\n", j);
   }
 
