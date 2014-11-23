@@ -108,11 +108,11 @@ memmove(void *vdst, void *vsrc, int n)
 void lock(int* l)
 {
 
-  while(xchg(*l, 1) != 0)
+  while(xchg((uint*)l, 1) != 0)
     ;
 }
 
 // Release the lock.
 void unlock(int* l){
-   xchg(*l, 0);
+   xchg((uint*)l, 0);
 }
