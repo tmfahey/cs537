@@ -103,3 +103,16 @@ memmove(void *vdst, void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+// Acquire the lock.
+void lock(int* l)
+{
+
+  while(xchg(*l, 1) != 0)
+    ;
+}
+
+// Release the lock.
+void unlock(int* l){
+   xchg(*l, 0);
+}
