@@ -29,8 +29,8 @@ int uptime(void);
 int thread_create(void (*fn)(void*), void *arg);
 int join(void);
 int clone(int*);
-void threadSleep(void);
-void threadWake(void);
+void lock(int*);
+void unlock(int*);
 
 // user library functions (ulib.c)
 int stat(char*, struct stat*);
@@ -45,8 +45,6 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
-void lock(int*);
-void unlock(int*);
 
 #endif // _USER_H_
 

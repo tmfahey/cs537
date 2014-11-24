@@ -114,8 +114,9 @@ int             clone(void);
 int             join(void);
 //added system call for p4
 int             threadSleep(void);
-int             threadWake(void);
-
+int             threadWake(int pid);
+int		lock(int*);
+int		unlock(int*);
 // swtch.S
 void            swtch(struct context**, struct context*);
 

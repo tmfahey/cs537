@@ -27,8 +27,7 @@ int sys_uptime(void);
 // Additional system calls for threads (P4B)
 int sys_clone(void);
 int sys_join(void);
-int sys_threadSleep(void);
-int sys_threadWake(void);
-
+int sys_lock(void);
+int sys_unlock(void);
 
 #endif // _SYSFUNC_H_

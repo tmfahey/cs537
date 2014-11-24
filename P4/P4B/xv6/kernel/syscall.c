@@ -106,9 +106,8 @@ static int (*syscalls[])(void) = {
 //adding p4 syscalls
 [SYS_clone]   sys_clone,
 [SYS_join]    sys_join,
-[SYS_threadSleep] sys_threadSleep,
-[SYS_threadWake] sys_threadWake
-
+[SYS_lock]    sys_lock,
+[SYS_unlock]  sys_unlock
 };
 
 // Called on a syscall trap. Checks that the syscall number (passed via eax)

@@ -26,18 +26,28 @@ sys_join(void)
   return join();
 }
 
-//added for p4
 int
-sys_threadSleep(void)
+sys_lock(void)
 {
-  return threadSleep();
+  int *l;
+
+  // Obtain lock argument
+  if (argptr(0, (void*)&l, sizeof(l)) < 0)
+        return -1;
+  
+  //cprintf("in sys_lock - %d, %p", *l, &l);
+  return lock(l);
 }
 
-//added for p4
-int
-sys_threadWake(void)
+int sys_unlock(void)
 {
-  return threadWake();
+  int *l;
+  
+  // Obtain lock argument
+  if (argptr(0, (void*)&l, sizeof(l)) < 0)
+    return -1;
+  
+  return unlock(l);
 }
 
 int

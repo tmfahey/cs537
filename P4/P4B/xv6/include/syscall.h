@@ -26,8 +26,7 @@
 //for p4
 #define SYS_clone	22
 #define SYS_join	23
-#define SYS_threadSleep 24
-#define SYS_threadWake 25
-
+#define SYS_lock 24
+#define SYS_unlock 25
 
 #endif // _SYSCALL_H_

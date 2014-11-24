@@ -4,12 +4,12 @@
 
 int stack[4096] __attribute__ ((aligned (4096)));
 int x = 0;
-
+/*
 int main(int argc, char *argv[]) {
   printf(1, "Stack is at %p\n", stack);
   // int tid = fork();
   int tid = clone(stack);
-   int l = 0;
+   //int l = 0;
   if (tid < 0) {
     printf(2, "error!\n");
   } else if (tid == 0) {
@@ -20,10 +20,9 @@ int main(int argc, char *argv[]) {
       sleep(100);
       i++;
     }
-    while(x<99999999){
-    lock(&l);
-    x++;
-    unlock(&l);
+    char *mallocFun = (char*)malloc(200 * sizeof(char));
+    for(i = 0; i < 200; i++){
+     mallocFun[i] = 'i';
     }
   } else {
     int j = 0;
@@ -33,19 +32,14 @@ int main(int argc, char *argv[]) {
       sleep(100);
       j++;
     }
-    printf(1, "Parent here");
-    while(x<99999999){
-     lock(&l);
-      x++;
-      unlock(&l);
-    }
+    //printf(1, "Parent here");
     printf(1, "x: %d", x);
     j = join();
     printf(1, "Join: %d\n", j);
   }
 
   exit();
-}
+}*/
 
 /*void testprint(){
    printf(1,"Inside testprint");
@@ -56,7 +50,7 @@ int main(int argc, char *argv[]) {
 
 
 
-/*
+
 int counter;
 int l;
 
@@ -65,7 +59,8 @@ void counter_inc(void * a)
 { 
   int i;   
   for(i = 0; i < (int)a; i++) 
-  { lock(&l);
+  { //printf(1, "locking - l : %d", l);
+    lock(&l);
     counter++;
     unlock(&l);  
   }
@@ -126,7 +121,7 @@ main(int argc, char *argv[])
   printf(1,"Counter: %d\n", counter);
   exit();
 }
-*/
+
 
 /*
 int main(int argc, char *argv[]) {

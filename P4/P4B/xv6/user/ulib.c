@@ -104,17 +104,3 @@ memmove(void *vdst, void *vsrc, int n)
   return vdst;
 }
 
-// Acquire the lock.
-void lock(int* l)
-{
-
-  while(xchg((uint*)l, 1) != 0){
-    threadSleep(); 
-  };
-}
-
-// Release the lock.
-void unlock(int* l){
-  xchg((uint*)l, 0);
-  threadWake(); 
-}

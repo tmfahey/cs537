@@ -116,7 +116,35 @@ growproc(int n)
     if((sz = deallocuvm(proc->pgdir, sz, sz + n)) == 0)
       return -1;
   }
+  cprintf("in growproc. Pid: %d  Size: %d , ParentSize: %d \n", proc->pid, proc->sz, proc->parent->sz);
+  if(proc->isThread){
+   cprintf("^^THREAD\n");
+   //who is this threads parent?
+   struct proc* tempParent = proc->parent;
+   struct proc* tempItr;
+   struct proc* p;
+   while(tempParent->isThread){
+     tempParent = tempParent->parent;
+   }
+   cprintf("tempParent found, Pid: %d, Size: %d\n", tempParent->pid, tempParent->sz);
+   tempParent->sz = sz;
+   acquire(&ptable.lock);
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->isThread){
+        tempItr = p->parent;
+        while(tempItr->isThread){
+          tempItr = tempItr->parent;
+        }
+        if(tempItr->pid == tempParent->pid){
+          p->sz = sz;
+        }
+      }
+    }
+    release(&ptable.lock);
+  }
   proc->sz = sz;
+  
+
   switchuvm(proc);
   return 0;
 }
@@ -210,7 +238,6 @@ clone(void)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
-  np->stack = stack; //save the stack pointer for thread
   np->isThread = 1; //signal that this is a thread
  
   //cprintf("BEFORE:\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp); 
@@ -276,7 +303,7 @@ join(void)
         p->isThread=0; //p4
         release(&ptable.lock);
         //copy the location of child stack to childStack
-        *childStack=p->stack;
+        //*childStack=p->stack;
         return pid;
       }
     }
@@ -290,6 +317,22 @@ join(void)
   }
 }
 
+int lock(int* l){
+  //cprintf("in lock for pid %d. lock is %d\n", proc->pid, *l);
+  while(xchg((uint*)l, 1) !=0){
+    //cprintf("sleep time\n");
+    threadSleep();
+  }
+  //cprintf("lock grabbed. pid: %d lock %d\n", proc->pid, *l);
+  return 0;
+}
+
+int unlock(int *l){
+  //cprintf("unlocking for pid %d \n", proc->pid);
+  xchg((uint*)l, 0);
+  wakeup1((void*)118);
+  return 0;
+}
 
 //put a thread to sleep
 int threadSleep(void){
@@ -306,6 +349,7 @@ int threadSleep(void){
   
   // Go to sleep.
   //  proc->chan = chan;
+  proc->chan = (void*)118;
   proc->state = SLEEPING;
   //xchg(outsideLock, 0); // release the outside lock
   /* cprintf("outside lock addr: %x, value:%d \n",outsideLock,*outsideLock); */
@@ -321,13 +365,13 @@ int threadSleep(void){
 
 
 //wake up a particular thread
-int threadWake(void){
-  int pid;
+int threadWake(int pid){
+  //int pid;
   struct proc *p;
   
-  if(argint(0, &pid) < 0)
+  /*if(argint(0, &pid) < 0)
     return -1;
-  
+  */
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->pid == pid){

@@ -75,7 +75,6 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   uint isThread;               // Tells if this is thread
-  void *stack;                 // The top addr of thread stack. Invalid if not thread
 };
 
 // Process memory is laid out contiguously, low addresses first:
