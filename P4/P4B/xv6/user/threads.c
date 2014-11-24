@@ -10,7 +10,7 @@ int thread_create(void (*fn)(void *), void *arg) {
 	// Allocate page-aligned space for the new stack
 	void *newstack = malloc((uint)PGSIZE*2);
 	if(NULL == newstack) {
-		cprintf("Error in allocating memory for newstack");
+		printf(1, "Error in allocating memory for newstack");
 		return -1;
 	}
 
@@ -22,15 +22,15 @@ int thread_create(void (*fn)(void *), void *arg) {
 	if(clone_pid >= 0) {
 		if(0 == clone_pid) { // child thread
 			// call the function pointer, passing it the provided argument
-			if(0 == (*fn(arg))){
+			fn(arg);
 				//Upon completion, free the stack and exit
 				free(newstack);
 				exit();
-			}
+			/*
 			else {
-				cprintf("thread function did not perform correctly");
+				printf(1, "thread function did not perform correctly");
 				return -1;
-			}
+			}*/
 		}
 
 		else { // parent thread
@@ -40,14 +40,14 @@ int thread_create(void (*fn)(void *), void *arg) {
 	}
 	
 	else {
-		cprintf("threadc creation failed");
+		printf(1,"threadc creation failed");
 		return -1;
 	}
 }
-
+/*
 int join(){
 	void *child_stack;
 	int child_pid = join(&child_stack);
 	free(child_stack);
 	return child_pid;
-}
+}*/
