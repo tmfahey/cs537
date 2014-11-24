@@ -29,6 +29,8 @@ int uptime(void);
 int thread_create(void (*fn)(void*), void *arg);
 int join(void);
 int clone(int*);
+void threadSleep(void);
+void threadWake(void);
 
 // user library functions (ulib.c)
 int stat(char*, struct stat*);

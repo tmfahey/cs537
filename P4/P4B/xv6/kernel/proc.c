@@ -215,10 +215,12 @@ clone(void)
  
   //cprintf("BEFORE:\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp); 
   //copy stack to the new address, assumes page alignment
-  np->tf->esp = (uint)((proc->tf->esp & 0x0FFF) + stack);//using the new stack
-  np->tf->ebp = (uint)((proc->tf->ebp & 0x0FFF) + stack);
-  memmove((void*)(np->tf->esp & 0xF000), (void*)(proc->tf->esp & 0xF000), PGSIZE);
-  //cprintf("AFTER\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp);
+  np->tf->esp = (uint)((proc->tf->esp % PGSIZE) + stack);
+  np->tf->ebp = (uint)((proc->tf->ebp % PGSIZE) + stack);
+  uint newPage = (np->tf->esp / PGSIZE) * PGSIZE;
+  uint oldPage = (proc->tf->esp / PGSIZE) * PGSIZE;
+  memmove((void*)newPage,(void*)oldPage, PGSIZE);
+  
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 

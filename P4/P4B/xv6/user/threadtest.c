@@ -5,7 +5,7 @@
 int stack[4096] __attribute__ ((aligned (4096)));
 int x = 0;
 
-/*int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   printf(1, "Stack is at %p\n", stack);
   // int tid = fork();
   int tid = clone(stack);
@@ -45,21 +45,29 @@ int x = 0;
   }
 
   exit();
-}*/
+}
 
 /*void testprint(){
    printf(1,"Inside testprint");
 }*/
 
+
+
+
+
+
+/*
 int counter;
+int l;
 
 // Increments a counter by one in a for-loop argument a number of times
 void counter_inc(void * a)
 { 
   int i;   
   for(i = 0; i < (int)a; i++) 
-  { 
-    counter++;  
+  { lock(&l);
+    counter++;
+    unlock(&l);  
   }
 //  return NULL;
 }
@@ -83,7 +91,7 @@ main(int argc, char *argv[])
   int outerLoopCount = 1;
   if(argc == 4) outerLoopCount = atoi(argv[3]);
   
-  if (numThreads > 50 - 3)
+  if (numThreads > 61)
   {
     printf(2, "Error: Max number of threads is 61(NPROC - kernel, shell, this process)\n");
     exit();
@@ -91,7 +99,7 @@ main(int argc, char *argv[])
   counter = 0;
 //  lock = malloc(sizeof(lock_t));
  // lock_init(lock);
-  
+  l = 0;
   int j;
   for (j = 0; j < outerLoopCount; j++)
   {
@@ -111,13 +119,14 @@ main(int argc, char *argv[])
   if(counter != numThreads * loopCount * outerLoopCount)
   {
     printf(1,"Error: counter != numThreads * loopCount [* outerLoopCount(optional)]\n");
+    printf(1,"Counter: %d, numThread: %d, loopCount: %d", counter, numThreads, loopCount);
     exit();
   }
   
   printf(1,"Counter: %d\n", counter);
   exit();
 }
-
+*/
 
 /*
 int main(int argc, char *argv[]) {
