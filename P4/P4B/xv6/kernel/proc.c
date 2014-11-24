@@ -213,12 +213,12 @@ clone(void)
   np->stack = stack; //save the stack pointer for thread
   np->isThread = 1; //signal that this is a thread
  
-  cprintf("BEFORE:\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp); 
+  //cprintf("BEFORE:\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp); 
   //copy stack to the new address, assumes page alignment
   np->tf->esp = (uint)((proc->tf->esp & 0x0FFF) + stack);//using the new stack
   np->tf->ebp = (uint)((proc->tf->ebp & 0x0FFF) + stack);
   memmove((void*)(np->tf->esp & 0xF000), (void*)(proc->tf->esp & 0xF000), PGSIZE);
-  cprintf("AFTER\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp);
+  //cprintf("AFTER\nESP: %p, EBP: %p\n", np->tf->esp, np->tf->ebp);
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -247,7 +247,7 @@ join(void)
   void** childStack;
   if(argptr(0, (void*)&childStack,sizeof(childStack)) < 0 )
     return -1;
-    cprintf("in join: childStack value: %x\n",*childStack);
+    //cprintf("in join: childStack value: %x\n",*childStack);
   
   acquire(&ptable.lock);
   for(;;){
@@ -259,7 +259,7 @@ join(void)
       havekids = 1;
 
       if(p->state == ZOMBIE ){ 
-        cprintf("in join: find child thread: pid: %d\n",p->pid);        
+        //cprintf("in join: find child thread: pid: %d\n",p->pid);        
         // Found one.
         pid = p->pid;
         kfree(p->kstack);

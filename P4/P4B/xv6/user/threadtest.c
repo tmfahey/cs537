@@ -5,7 +5,7 @@
 int stack[4096] __attribute__ ((aligned (4096)));
 int x = 0;
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
   printf(1, "Stack is at %p\n", stack);
   // int tid = fork();
   int tid = clone(stack);
@@ -45,4 +45,21 @@ int main(int argc, char *argv[]) {
   }
 
   exit();
+}*/
+
+void testprint(void *x){
+   printf(1,"Inside testprint");
+}
+
+
+
+int main(int argc, char *argv[]) {
+   int testargs[] = {10,20};
+   int *iptr = testargs;
+
+   void (*functr)(void*);
+   functr = &testprint;
+
+   thread_create(functr,(char*)iptr);
+   return 0;
 }
