@@ -116,9 +116,9 @@ growproc(int n)
     if((sz = deallocuvm(proc->pgdir, sz, sz + n)) == 0)
       return -1;
   }
-  cprintf("in growproc. Pid: %d  Size: %d , ParentSize: %d \n", proc->pid, proc->sz, proc->parent->sz);
+  //cprintf("in growproc. Pid: %d  Size: %d , ParentSize: %d \n", proc->pid, proc->sz, proc->parent->sz);
   if(proc->isThread){
-   cprintf("^^THREAD\n");
+   //cprintf("^^THREAD\n");
    //who is this threads parent?
    struct proc* tempParent = proc->parent;
    struct proc* tempItr;
@@ -126,7 +126,7 @@ growproc(int n)
    while(tempParent->isThread){
      tempParent = tempParent->parent;
    }
-   cprintf("tempParent found, Pid: %d, Size: %d\n", tempParent->pid, tempParent->sz);
+   //cprintf("tempParent found, Pid: %d, Size: %d\n", tempParent->pid, tempParent->sz);
    acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->isThread){
