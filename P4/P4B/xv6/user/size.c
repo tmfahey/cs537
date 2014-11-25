@@ -71,6 +71,7 @@ void
 worker(void *arg_ptr) {
    lock(&lock1);
    printf(1, "child: %d\n", (unsigned int)sbrk(0));
+   printf(1, "sbrk(0): %d, size: %d", sbrk(0), size);
    assert((unsigned int)sbrk(0) == size);
    global++;
    unlock(&lock1);

@@ -127,7 +127,6 @@ growproc(int n)
      tempParent = tempParent->parent;
    }
    cprintf("tempParent found, Pid: %d, Size: %d\n", tempParent->pid, tempParent->sz);
-   tempParent->sz = sz;
    acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->isThread){
@@ -136,14 +135,15 @@ growproc(int n)
           tempItr = tempItr->parent;
         }
         if(tempItr->pid == tempParent->pid){
-          p->sz = sz;
+          p->sz = tempParent->sz;
         }
       }
     }
     release(&ptable.lock);
+    proc->sz = tempParent->sz;
+  }else{
+    proc->sz = sz;
   }
-  proc->sz = sz;
-  
 
   switchuvm(proc);
   return 0;
