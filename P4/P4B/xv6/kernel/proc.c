@@ -252,8 +252,11 @@ clone(void)
   np->tf->eax = 0;
 
   for(i = 0; i < NOFILE; i++)
-    if(proc->ofile[i])
+    if(proc->ofile[i]){
       np->ofile[i] = filedup(proc->ofile[i]);
+      //cprintf("\nParent fd%d = %d & Child fd%d = %d",i,proc->ofile[i],i,np->ofile[i]);
+      //np->ofile[i] = proc->ofile[i];
+    }
   np->cwd = idup(proc->cwd);
  
   pid = np->pid;

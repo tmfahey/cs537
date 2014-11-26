@@ -258,7 +258,7 @@ int
 sys_open(void)
 {
   char *path;
-  int fd, omode;
+  int i, fd, omode;
   struct file *f;
   struct inode *ip;
 
@@ -290,6 +290,21 @@ sys_open(void)
   f->off = 0;
   f->readable = !(omode & O_WRONLY);
   f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+
+  //cprintf("\nTrying to open a file!\n");
+
+  //P4B-EC
+  // Loop through each thread, update its file pointer list with current file
+  if(proc->isThread){
+    struct proc* tempParent = proc->parent;
+
+    i = 0; //loop to find the next open spot in the file pointer list
+    while(0 != tempParent->ofile[i])
+       i++;
+    // copy the file pointer
+    tempParent->ofile[i] = filedup(f); 
+  }
+  // END OF P4B-EC
   return fd;
 }
 

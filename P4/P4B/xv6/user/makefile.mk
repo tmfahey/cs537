@@ -18,7 +18,8 @@ USER_PROGS := \
 	wc\
 	zombie\
 	threadtest\
-	size
+	size\
+	ec_file_descriptors
 
 USER_PROGS := $(addprefix user/, $(USER_PROGS))
 
