@@ -1,0 +1,69 @@
+Summary:
+
+
+test maxfile FAILED
+ (write largest possible file)
+ Corrupt data returned by read
+
+test maxfile2 FAILED
+ (write more blocks than possible)
+ Corrupt data returned by read
+
+
+
+
+
+
+
+test sparse FAILED
+ (write first and last block)
+ Corrupt data returned by read
+
+test stat2 FAILED
+ (stat a sparse file)
+ Stat gave wrong size
+
+
+
+test dir2 FAILED
+ (create a new directory and check it)
+ '.' in directory should point to directory itself
+
+
+
+test empty FAILED
+ (unlink a non-empty directory)
+ MFS_Lookup returned failure inum=1 name='testfile'
+
+
+
+test drop FAILED
+ (drop every other packet sent by client)
+ Corrupt data returned by read
+
+test bigdir FAILED
+ (create a directory with max number of files)
+ MFS_Lookup returned failure inum=1 name='0'
+
+test bigdir2 FAILED
+ (create a directory with more files than possible)
+ MFS_Creat should fail if directory is full
+
+test deep FAILED
+ (create many deeply nested directories)
+ MFS_Lookup returned failure inum=1 name='0'
+
+test complex FAILED
+ (a long sequence of creats and writes followed by a check)
+ MFS_Lookup returned failure inum=1 name='file2'
+
+test complex2 FAILED
+ (a long sequence of creats and writes followed by a check)
+ MFS_Lookup returned failure inum=1 name='file2'
+
+test persist2 FAILED
+ (restart server after creating many dirs and files)
+ MFS_Lookup returned failure inum=1 name='file2'
+
+
+
