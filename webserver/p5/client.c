@@ -8,11 +8,11 @@
 int
 main(int argc, char *argv[])
 {
-    int sd = UDP_Open(2098);
+    int sd = UDP_Open(0);
     assert(sd > -1);
 
     struct sockaddr_in saddr;
-    int rc = UDP_FillSockAddr(&saddr, "mumble-22.cs.wisc.edu", 10000);
+    int rc = UDP_FillSockAddr(&saddr, "macaroni-06.cs.wisc.edu", 10000);
     assert(rc == 0);
     msg_t msg = {.func="shutdown", .int1 = 
 0,.int2=0,.ret=-1,.name="root"}; 

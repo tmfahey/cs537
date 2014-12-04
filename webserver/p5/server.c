@@ -114,7 +114,7 @@ printf("end at 37: %d\n", check_point->end);
 	if (rc > 0) { 
 printf("in server %d\n",msg.ret);
 	   callLib(sd,s,&msg);
-
+printf("after callib %d\n", msg.ret);
 	   rc = UDP_Write(sd, &s, (char *) &msg, sizeof(msg_t));
 	}
     }
@@ -123,7 +123,7 @@ printf("in server %d\n",msg.ret);
 }
 
 int callLib(int sd, struct sockaddr_in s, msg_t * msg) {
-
+printf("incalib\n");
  if (strcmp(msg->func,"lookup")==0) {
     msg->ret = s_lookup(msg->int1, msg->name);
  }
@@ -149,7 +149,7 @@ int callLib(int sd, struct sockaddr_in s, msg_t * msg) {
     printf("invalid function\n");
     return -1;
  }
-
+printf("return 0");
   return 0;
 }
 
