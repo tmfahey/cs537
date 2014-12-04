@@ -1,0 +1,24 @@
+CC   = gcc
+OPTS = -Wall
+
+all: server client libmfs
+
+# this generates the target executables
+server: server.o udp.o
+	$(CC) -lmem -L. -o server server.o udp.o 
+
+client: client.o udp.o
+	$(CC) -lmem -L. -o client client.o udp.o 
+
+libmfs:	libmfs.o
+	$(CC) -shared -o libmfs.so libmfs.o
+
+# this is a generic rule for .o files 
+%.o: %.c 
+	$(CC) $(OPTS) -c $< -o $@
+
+clean:
+	rm -f *.so *.o libmfs server client
+
+
+

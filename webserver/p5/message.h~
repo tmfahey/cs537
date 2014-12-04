@@ -1,0 +1,15 @@
+
+#ifndef __MESSAGE_h__
+#define __MESSAGE_h__
+#include "mfs.h"
+
+typedef struct __msg_t {
+  char func[60];
+  
+//  char *func1;
+  int int1, int2, ret;
+  char name[20];
+  MFS_Stat_t m;
+} msg_t;
+
+#endif // __Message_h__
