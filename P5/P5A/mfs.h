@@ -102,13 +102,13 @@ int MFS_Creat(int pinum, int type, char *name);
 int MFS_Unlink(int pinum, char *name);
 int MFS_Shutdown();
 
-int callLib(int sd, struct sockaddr_in s, msg_t * msg);
+int callLib(int sd, struct sockaddr_in s, message * msg);
 int s_lookup(int pinum, char *name);
-int s_stat(int inum, msg_t *msg);
+int s_stat(int inum, message *msg);
 int s_write(int inum, char *buffer, int block);
 int s_read(int inum, char *buffer, int block);
 int s_creat(int pinum, int type, char *name);
 int s_unlink(int pinum, char *name);
-int s_shutdown(int sd, struct sockaddr_in  s, msg_t *msg);
+int s_shutdown(int sd, struct sockaddr_in  s, message *msg);
 void dump();
 #endif // __MFS_h__
