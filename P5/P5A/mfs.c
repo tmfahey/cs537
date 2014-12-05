@@ -76,7 +76,7 @@ int MFS_Stat(int inum, MFS_Stat_t *m){
 int MFS_Write(int inum, char *buffer, int block){
 
 
-   if (block > 13)
+   if (block > NDIRECT)
   return -1;
    message msg;
    msg.int1 = inum;
@@ -91,7 +91,7 @@ int MFS_Write(int inum, char *buffer, int block){
    return msg.ret;
 }
 int MFS_Read(int inum, char *buffer, int block){   
-  if (block > 13)
+  if (block > NDIRECT)
   return -1;
 
 
