@@ -44,11 +44,11 @@ struct __attribute__((__packed__)) superblock {
 #define MFS_DIRECTORY 2
 
 // On-disk inode structure
-struct __attribute__((__packed__)) dinode {
+typedef struct __attribute__((__packed__)) dinode {
   int type;           // File type
   unsigned int size;            // Size of file (bytes)
   unsigned int addrs[NDIRECT+1];   // Data block addresses
-};
+} dinode;
 
 // Inodes per block.
 #define IPB           (BSIZE / sizeof(struct dinode))
@@ -74,9 +74,13 @@ typedef struct __MFS_DirEnt_t {
 } MFS_DirEnt_t;
 
 typedef struct __check_t {
-  int ptr[64];
+  int addrs[64];
   int end;
 } check_t;
+
+typedef struct __inode_map {
+ int inode[16];
+} inode_map;
 
 typedef struct __attribute__((__packed__)) __message__ {
   char func[20];

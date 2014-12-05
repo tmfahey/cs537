@@ -10,10 +10,10 @@ main(int argc, char *argv[])
     assert(sd > -1);
 
     struct sockaddr_in saddr;
-    int rc = UDP_FillSockAddr(&saddr, "mumble-34.cs.wisc.edu", 10000);
+    int rc = UDP_FillSockAddr(&saddr, "localhost", 10000);
     assert(rc == 0);
-    message msg = {.func="shutdown", .int1 = 
-0,.int2=0,.ret=-1,.name="root"}; 
+    //message msg = {.func="shutdown", .int1 = 0,.int2=0,.ret=-1,.name="root"};
+    message msg = {.func="lookup", .int1 = 0,.int2=0,.ret=1,.name=".."}; 
     printf("CLIENT:: about to send message (%d)\n", rc);
     rc = UDP_Write(sd, &saddr, (char *) &msg, sizeof(message));
     printf("CLIENT:: sent message (%d)\n", rc);
