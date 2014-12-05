@@ -1,0 +1,15 @@
+CC   = gcc
+OPTS = -Wall
+
+all: udp.c
+	$(CC) -o udp udp.c -Wall -Werror
+	$(CC) -c -fpic libmfs.c -Wall -Werror
+#	$(CC) -shared -o libmfs.so libmem.o
+#	$(CC) -lmem -L. -o server server.c -Wall -Werror
+#	$(CC) -lmem -L. -o client client.c -Wall -Werror
+#	$(CC) -lmem -L. -o main main.c -Wall -Werror
+clean:
+	rm -rf *.so *.o libmfs server client
+
+
+

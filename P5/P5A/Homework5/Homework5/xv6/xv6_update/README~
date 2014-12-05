@@ -1,0 +1,14 @@
+README
+Alyssa Morrow (akmorrow@wisc.edu)
+Rakesh Ramananda(ramananda@wisc.edu)
+
+NOTE: Alyssa Morrow is in section 2. Rakesh Ramananda is in section 3.
+
+LINUX
+
+For the linux portion of the test we implemented a file system image, and created a library to access, edit and create file directories. The most important part about implementing this is using integer offsets as pointers and writing these offsets to structures in the file system. The library implemented also handles dropped packets but keeping track of whether or not UDP_write correctly returns. The library calls into the server, which holds the core functions for the library. Many of these functions use the same protocol to read, navigate and write to the file system.
+
+XV6
+
+For the xv6 portion of p5 we implemented a checksum on files. The main changes for this were made in fs.c, where we calculated the checksum in read to check that it has not changed which means there is no corrupted data. write also was edited to calculate the initial value of checksum. many other functions were edited to check if the file type was the new T_CHECKED type implemented, and the file had to be treated for the checksum.Also a program named Filestat has been implemented.
+

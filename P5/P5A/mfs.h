@@ -1,3 +1,22 @@
+#ifndef __MFS_h__
+#define __MFS_h__
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <assert.h>
+
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+
 // On-disk file system format.
 // Both the kernel and user programs use this header file.
 
@@ -53,22 +72,18 @@ typedef struct __MFS_DirEnt_t {
     char name[60];  // up to 60 bytes of name in directory (including \0)
     int  inum;      // inode number of entry (-1 means entry not used)
 } MFS_DirEnt_t;
-          
-         
-typedef struct __attribute__((__packed__)) __message__ {
-        char cmd[24];
-        int inum;
-        int type;
-        char block[4096];
-        char name[64];
-        int blocknum;
-} message;
 
-typedef struct __attribute__((__packed__)) __response__ {
-        int rc;
-        MFS_Stat_t stat;
-        char block[4096];
-} response;
+typedef struct __check_t {
+  int ptr[64];
+  int end;
+} check_t;
+
+typedef struct __attribute__((__packed__)) __message__ {
+  char func[20];
+  int int1, int2, ret;
+  char name[4096];
+  MFS_Stat_t m;
+} message;
 
 int MFS_Init(char *hostname, int port);
 int MFS_Lookup(int pinum, char *name);
@@ -78,4 +93,22 @@ int MFS_Read(int inum, char *buffer, int block);
 int MFS_Creat(int pinum, int type, char *name);
 int MFS_Unlink(int pinum, char *name);
 int MFS_Shutdown(); 
+int MFS_Init(char *hostname, int port);
+int MFS_Lookup(int pinum, char *name);
+int MFS_Stat(int inum, MFS_Stat_t *m);
+int MFS_Write(int inum, char *buffer, int block);
+int MFS_Read(int inum, char *buffer, int block);
+int MFS_Creat(int pinum, int type, char *name);
+int MFS_Unlink(int pinum, char *name);
+int MFS_Shutdown();
 
+int callLib(int sd, struct sockaddr_in s, msg_t * msg);
+int s_lookup(int pinum, char *name);
+int s_stat(int inum, msg_t *msg);
+int s_write(int inum, char *buffer, int block);
+int s_read(int inum, char *buffer, int block);
+int s_creat(int pinum, int type, char *name);
+int s_unlink(int pinum, char *name);
+int s_shutdown(int sd, struct sockaddr_in  s, msg_t *msg);
+void dump();
+#endif // __MFS_h__

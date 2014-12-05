@@ -1,0 +1,129 @@
+
+**********************************************************************
+
+Test build
+build project using make
+
+**********************************************************************
+Trying to clean project using make clean
+make clean
+rm -f main.o server.o udp.o client.o mfs.o libmfs.so server client *.img
+Trying to build project using make
+make
+gcc -Wall -c server.c -o server.o
+gcc -Wall -c udp.c -o udp.o
+gcc -o  server -g server.o udp.o 
+gcc -Wall -c main.c -o main.o
+gcc -Wall -c mfs.c -o mfs.o
+gcc -o main -g main.o udp.o mfs.o 
+gcc -Wall -c client.c -o client.o
+gcc -o client -g client.o udp.o mfs.o 
+gcc -Wall -Werror -shared -fpic -g -o libmfs.so mfs.c udp.c
+#gcc -c -fpic mfs.c -Wall -Werror
+#gcc -shared -o libmfs.so mfs.o
+
+
+test build PASSED
+ (build project using make)
+ file 'libmfs.o' exists after make clean, removing
+
+
+**********************************************************************
+
+Test shutdown
+init server and client then call shutdown
+
+**********************************************************************
+Starting server on port 5720
+/tmp/tmpT1prUS/p/server 5720 testimage
+in server
+end at 37: 4356
+SERVER:: waiting in loop
+in server 19
+in shutdown
+HERE
+in mfsinit port 5720 
+CLIENT:: read 0 bytes (message: 'shutdown')
+CLIENT:: read 0 bytes (ret 19)
+CLIENT:: about to send message (0)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '7')
+
+
+test shutdown PASSED
+ (init server and client then call shutdown)
+
+
+**********************************************************************
+
+Test creat
+creat a file and check with lookup
+
+**********************************************************************
+Starting server on port 7790
+/tmp/tmpT1prUS/p/server 7790 testimage
+in server
+end at 37: 4356
+SERVER:: waiting in loop
+in server 0
+NAME test
+in server 0
+in server 19
+in shutdown
+HERE
+in mfsinit port 7790 
+CLIENT:: read 0 bytes (message: 'creat')
+CLIENT:: read 0 bytes (ret 0)
+CLIENT:: about to send message (0)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '0')
+CLIENT:: read 1 bytes (message: 'lookup')
+CLIENT:: read 1 bytes (ret 0)
+CLIENT:: about to send message (1)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '1')
+CLIENT:: read 1 bytes (message: 'shutdown')
+CLIENT:: read 1 bytes (ret 19)
+CLIENT:: about to send message (1)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '7')
+
+
+test creat PASSED
+ (creat a file and check with lookup)
+
+
+**********************************************************************
+
+Test write
+write then read one block
+
+**********************************************************************
+Starting server on port 5699
+/tmp/tmpT1prUS/p/server 5699 testimage
+HERE
+in mfsinit port 5699 
+CLIENT:: read 0 bytes (message: 'creat')
+CLIENT:: read 0 bytes (ret 0)
+CLIENT:: about to send message (0)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '0')
+CLIENT:: read 1 bytes (message: 'lookup')
+CLIENT:: read 1 bytes (ret 0)
+CLIENT:: about to send message (1)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '1')
+CLIENT:: read 1 bytes (message: 'write')
+CLIENT:: read 1 bytes (ret 32767)
+CLIENT:: about to send message (1)
+CLIENT:: sent message rc = (100)
+CLIENT:: read 100 bytes (message: '-1')
+Failure: MFS_Write returned failure inum=1 block=0
+
+
+test write FAILED
+ (write then read one block)
+ MFS_Write returned failure inum=1 block=0
+
+Skipped 23 tests.
+To keep testing after failing a test, use flag '-c' or '--continue'

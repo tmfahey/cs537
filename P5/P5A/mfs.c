@@ -11,6 +11,36 @@ struct sockaddr_in saddr;
 
 // Need another function that writes to the client!
 
+message client(message msg){
+do {
+    printf("CLIENT:: read %d bytes (message: '%s')\n", rc, msg.func);
+    printf("CLIENT:: read %d bytes (ret %d)\n", rc, msg.ret);
+    printf("CLIENT:: about to send message (%d)\n", rc);
+ 
+    rc = UDP_Write(sd, &saddr, (char *) &msg, sizeof(message));
+    printf("CLIENT:: sent message rc = (%d)\n", rc);
+    fd_set r;
+    FD_ZERO(&r);
+    FD_SET(sd, &r);
+    struct timeval t;
+    t.tv_sec = 4;
+    t.tv_usec = 0;
+    rc =  select(sd + 1, &r, NULL, NULL, &t);
+
+} while(rc <= 0);
+    if (rc > 0) {
+      struct sockaddr_in raddr;
+      int rc = UDP_Read(sd, &raddr,(char *) &msg, sizeof(message));
+      printf("CLIENT:: read %d bytes (message: '%d')\n", rc, msg.ret);
+    }
+    else {
+      printf("maximum timeout reached, request not completed\n");
+    }
+
+    return msg;
+}
+
+
 //MFS_Init() takes a host name and port number and uses those to find the server exporting the file system.
 int MFS_Init(char *hostname, int port){
    sd = UDP_Open(0);
@@ -23,37 +53,96 @@ int MFS_Init(char *hostname, int port){
    return 0;
 }
 
-//MFS_Lookup() takes the parent inode number (which should be the inode number of a directory) and looks up the entry name in it. The inode number of name is returned. Success: return inode number of name; failure: return -1. Failure modes: invalid pinum, name does not exist in pinum.
 int MFS_Lookup(int pinum, char *name){
-  return 0;
-}
 
-//MFS_Stat() returns some information about the file specified by inum. Upon success, return 0, otherwise -1. The exact info returned is defined by MFS_Stat_t. Failure modes: inum does not exist.
+  // access the checkpoint region and get the pointer to inode_arr section
+  message msg;
+  msg.int1 = pinum;
+  strncpy(msg.func,"lookup", 60);
+  strncpy(msg.name,name, 20);
+  msg.int1 = pinum;
+  msg = client(msg);
+  return msg.ret;
+}
 int MFS_Stat(int inum, MFS_Stat_t *m){
-  return 0;
-}
+   message msg;
+   msg.int1 = inum;
+   strncpy(msg.func,"stat", 20);
 
-//MFS_Write() writes a block of size 4096 bytes at the block offset specified by block . Returns 0 on success, -1 on failure. Failure modes: invalid inum, invalid block, not a regular file (because you can't write to directories).
+   msg = client(msg);
+   *m = (msg.m);
+   return msg.ret;
+}
 int MFS_Write(int inum, char *buffer, int block){
-  return 0;
+
+
+   if (block > 13)
+  return -1;
+   message msg;
+   msg.int1 = inum;
+
+
+   msg.int2 = block;
+   strcpy(msg.func,"write");
+   memcpy(msg.name, buffer, 4096);
+
+
+   msg = client(msg);
+   return msg.ret;
+}
+int MFS_Read(int inum, char *buffer, int block){   
+  if (block > 13)
+  return -1;
+
+
+   message msg;
+   msg.int1 = inum;
+   msg.int2 = block;
+   strncpy(msg.func,"read", 20);
+   msg = client(msg);
+
+
+/*this is an error. msg.name reads into buffer but does not return correctly back to main.
+It must be a pointer problem. Once this is fixed, main should work. BTW, I fixed write 
+and read so that they read and write the correct size, depending on the input. Good Luck!*/
+
+   memcpy(buffer, msg.name, 4096);
+
+ return msg.ret;
+
 }
 
-//MFS_Read() reads a block specified by block into the buffer from file specified by inum . The routine should work for either a file or directory; directories should return data in the format specified by MFS_DirEnt_t. Success: 0, failure: -1. Failure modes: invalid inum, invalid block.
-int MFS_Read(int inum, char *buffer, int block){
-  return 0;
+int MFS_Creat(int pinum, int type, char *name) {
+
+   if(strlen(name) > 59)
+  return -1;
+   message msg;
+   msg.int1 = pinum;
+   msg.int2 = type;
+   strncpy(msg.func,"creat", 20);
+   strncpy(msg.name,name, 60);
+   msg.int1 = pinum;
+   msg.int2 = type;
+   msg = client(msg);
+
+   return msg.ret;
 }
 
-//MFS_Creat() makes a file ( type == MFS_REGULAR_FILE) or directory ( type == MFS_DIRECTORY) in the parent directory specified by pinum of name name . Returns 0 on success, -1 on failure. Failure modes: pinum does not exist, or name is too long. If name already exists, return success (think about why).
-int MFS_Creat(int pinum, int type, char *name){
-  return 0;
-}
 
-//MFS_Unlink() removes the file or directory name from the directory specified by pinum . 0 on success, -1 on failure. Failure modes: pinum does not exist, directory is NOT empty. Note that the name not existing is NOT a failure by our definition (think about why this might be).
 int MFS_Unlink(int pinum, char *name){
-  return 0;
-}
 
-//MFS_Shutdown() just tells the server to force all of its data structures to disk and shutdown by calling exit(0). This interface will mostly be used for testing purposes.
+   message msg;
+   msg.int1 = pinum;
+   strncpy(msg.func,"unlink", 20);
+   strncpy(msg.name,name, 60);
+   msg = client(msg);
+   return msg.ret;
+}
 int MFS_Shutdown(){
-  return 0;
+//   message *msg = malloc(sizeof(message));
+message msg;
+   strncpy(msg.func,"shutdown", 20);
+   msg.ret = 19;
+   msg = client(msg);
+   return 0;
 }

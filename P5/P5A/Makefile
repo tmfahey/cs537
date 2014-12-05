@@ -1,7 +1,7 @@
 CC  = gcc
 OPTS = -Wall
 
-all: server main client lib 
+all: lib 
 
 # this generates the target executables
 server: server.o udp.o

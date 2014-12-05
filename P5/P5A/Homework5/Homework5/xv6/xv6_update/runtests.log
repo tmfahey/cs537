@@ -1,0 +1,222 @@
+
+**********************************************************************
+
+Test build
+build xv6 using make
+
+**********************************************************************
+Trying to clean project using make clean
+make clean
+make: *** No rule to make target `clean'.  Stop.
+Trying to build project using make
+make
+make: *** No targets specified and no makefile found.  Stop.
+
+
+test build FAILED
+ (build xv6 using make)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+
+**********************************************************************
+
+Test write1
+write then read a block
+
+**********************************************************************
+Running xv6 user progam /u/c/s/cs537-2/ta/tests/5b/tests/write1.c
+IOError: [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+test write1 FAILED
+ (write then read a block)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+**********************************************************************
+
+Test write2
+write then read largest possible file
+
+**********************************************************************
+Running xv6 user progam /u/c/s/cs537-2/ta/tests/5b/tests/write2.c
+IOError: [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+test write2 FAILED
+ (write then read largest possible file)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+**********************************************************************
+
+Test write3
+write then read, buffer smaller than one block
+
+**********************************************************************
+Running xv6 user progam /u/c/s/cs537-2/ta/tests/5b/tests/write3.c
+IOError: [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+test write3 FAILED
+ (write then read, buffer smaller than one block)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+**********************************************************************
+
+Test write4
+write then read, buffer larger than one block
+
+**********************************************************************
+Running xv6 user progam /u/c/s/cs537-2/ta/tests/5b/tests/write4.c
+IOError: [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+test write4 FAILED
+ (write then read, buffer larger than one block)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+**********************************************************************
+
+Test write5
+check the correct image is produced after writing
+
+**********************************************************************
+Trying to build project using make
+make
+make: *** No targets specified and no makefile found.  Stop.
+
+
+test write5 FAILED
+ (check the correct image is produced after writing)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+
+**********************************************************************
+
+Test checksum1
+check that stat gives the correct checksum
+
+**********************************************************************
+Running xv6 user progam /u/c/s/cs537-2/ta/tests/5b/tests/checksum1.c
+IOError: [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+test checksum1 FAILED
+ (check that stat gives the correct checksum)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+
+**********************************************************************
+
+Test checksum2
+check that stat gives the correct checksum
+
+**********************************************************************
+Trying to build project using make
+make
+make: *** No targets specified and no makefile found.  Stop.
+
+
+test checksum2 FAILED
+ (check that stat gives the correct checksum)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+
+**********************************************************************
+
+Test corrupt1
+first block of file is corrupt
+
+**********************************************************************
+Trying to build project using make
+make
+make: *** No targets specified and no makefile found.  Stop.
+
+
+test corrupt1 FAILED
+ (first block of file is corrupt)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+
+**********************************************************************
+
+Test corrupt2
+13th block of file is corrupt
+
+**********************************************************************
+Trying to build project using make
+make
+make: *** No targets specified and no makefile found.  Stop.
+
+
+test corrupt2 FAILED
+ (13th block of file is corrupt)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+**********************************************************************
+Summary:
+test build FAILED
+ (build xv6 using make)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+test write1 FAILED
+ (write then read a block)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+test write2 FAILED
+ (write then read largest possible file)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+test write3 FAILED
+ (write then read, buffer smaller than one block)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+test write4 FAILED
+ (write then read, buffer larger than one block)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+test write5 FAILED
+ (check the correct image is produced after writing)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+test checksum1 FAILED
+ (check that stat gives the correct checksum)
+ Unexpected exception [Errno 2] No such file or directory: '/tmp/tmpBNM1jD/p/user/tester.c'
+
+test checksum2 FAILED
+ (check that stat gives the correct checksum)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+test corrupt1 FAILED
+ (first block of file is corrupt)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+test corrupt2 FAILED
+ (13th block of file is corrupt)
+ make failed (error 2)
+ required file 'xv6.img' does not exist after make
+ required file 'fs.img' does not exist after make
+
+Passed 0 of 10 tests.
+Overall 0 of 10

@@ -1,0 +1,41 @@
+Summary:
+
+
+test stat2 FAILED
+ (stat a sparse file)
+ Stat gave wrong size
+
+
+test empty FAILED
+ (unlink a non-empty directory)
+ MFS_Unlink should fail on non-empty dir
+
+
+test drop FAILED
+ (drop every other packet sent by client)
+ Corrupt data returned by read
+
+test bigdir FAILED
+ (create a directory with max number of files)
+ MFS_Lookup returned failure inum=1 name='0'
+
+test bigdir2 FAILED
+ (create a directory with more files than possible)
+ MFS_Creat should fail if directory is full
+
+test deep FAILED
+ (create many deeply nested directories)
+ MFS_Lookup returned failure inum=16 name='77'
+
+test complex FAILED
+ (a long sequence of creats and writes followed by a check)
+ MFS_Creat returned failure inum=16 type=1 name='file2'
+
+test complex2 FAILED
+ (a long sequence of creats and writes followed by a check)
+ MFS_Write returned failure inum=16 block=0
+
+test persist2 FAILED
+ (restart server after creating many dirs and files)
+ MFS_Write returned failure inum=16 block=0
+

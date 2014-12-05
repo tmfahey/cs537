@@ -42,6 +42,8 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+void lock(int* l);
+void unlock(int* l);
 
 #endif // _USER_H_
 
